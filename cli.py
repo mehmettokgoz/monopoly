@@ -17,13 +17,13 @@ class MonopolyCli(cmd.Cmd):
                 return user
         return None
 
-    def do_create_board(self, args):
+    def do_board(self, args):
         """Creates new board instance with given input file:  CREATE file_path"""
         args = parse(args, 1)
         if args is not None:
             self.board = Board(args[0])
 
-    def do_create_user(self, args):
+    def do_user(self, args):
         """Creates new user and adds it to the board: CREATE_USER username email fullname password"""
         args = parse(args, 4)
         if args is not None:
@@ -36,7 +36,7 @@ class MonopolyCli(cmd.Cmd):
         if args is not None:
             user: User = self.find_user_by_username(args[0])
             if user is not None:
-                self.board.attach(user, user.log, None)  # TODO: Send callback functions here!
+                self.board.attach(user, user.log, user.turncb)
             else:
                 print("Invalid username: User couldn't found.")
 
@@ -54,12 +54,12 @@ class MonopolyCli(cmd.Cmd):
             user = self.find_user_by_username(args[0])
             self.board.ready(user)  # TODO: Check if all users are ready after this operation.
 
-    def do_get_board_users(self, args):
+    def do_board_users(self, args):
         """Get board users: GET_BOARD_USERS"""
         for user in self.board.users:
             print(user.username, self.board.get_user_state(user))
 
-    def do_get_users(self, args):
+    def do_users(self, args):
         """Get users: GET_USERS"""
         for user in self.users:
             print(user.username)
@@ -69,6 +69,12 @@ class MonopolyCli(cmd.Cmd):
         args = parse(args, 1)
         if args is not None:
             self.board.log(args[0])
+
+    def do_start(self, args):
+        """Starts the Monopoly game."""
+        args = parse(args, 0)
+        if args is not None:
+            self.board.start_game()
 
 
 def parse(args, length):

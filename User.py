@@ -1,3 +1,6 @@
+from Board import Board
+
+
 class User:
     username: str
     email: str
@@ -38,4 +41,12 @@ class User:
 
     def log(self, message):
         print(f"{[self.username]}: ", message)
+
+    def turncb(self, board: Board):
+        print("monopoly> ", end="")
+        c = input(f'{self.username} roll dice [y/n]: ')
+        if c == "y":
+            board.turn(self, "ROLL")
+        else:
+            board.turn(self, "OTHER")
 
