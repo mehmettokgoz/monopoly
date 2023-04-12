@@ -36,3 +36,6 @@ class User:
         """Not implemented for Phase 1"""
         pass
 
+    def log(self, message):
+        print(f"{[self.username]}: ", message)
+

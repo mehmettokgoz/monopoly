@@ -4,7 +4,7 @@ from Board import Board
 from User import User
 
 
-class MonopolyShell(cmd.Cmd):
+class MonopolyCli(cmd.Cmd):
     intro = 'Welcome to the Monopoly shell. Type help or ? to list commands.\n'
     prompt = 'monopoly> '
 
@@ -34,9 +34,9 @@ class MonopolyShell(cmd.Cmd):
         """Attaches the given user to the board: ATTACH username"""
         args = parse(args, 1)
         if args is not None:
-            user = self.find_user_by_username(args[0])
+            user: User = self.find_user_by_username(args[0])
             if user is not None:
-                self.board.attach(user, None, None)  # TODO: Send callback functions here!
+                self.board.attach(user, user.log, None)  # TODO: Send callback functions here!
             else:
                 print("Invalid username: User couldn't found.")
 
@@ -64,6 +64,12 @@ class MonopolyShell(cmd.Cmd):
         for user in self.users:
             print(user.username)
 
+    def do_log(self, args):
+        """Sends the given message to all the users"""
+        args = parse(args, 1)
+        if args is not None:
+            self.board.log(args[0])
+
 
 def parse(args, length):
     args = tuple(map(str, args.split()))
@@ -74,4 +80,4 @@ def parse(args, length):
 
 
 if __name__ == '__main__':
-    MonopolyShell().cmdloop()
+    MonopolyCli().cmdloop()
