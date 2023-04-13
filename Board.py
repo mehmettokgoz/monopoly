@@ -18,6 +18,7 @@ class Board:
     curr_cell = 0
     curr_user = 0
     user_positions = {}
+    user_amounts = {}
 
     def __init__(self, file_path):
         self.users = []
@@ -26,6 +27,7 @@ class Board:
         for cell in self.cells:
             if cell["type"] == "property":
                 cell["level"] = 1
+                cell["owner"] = None
         self.chances = self.json["chances"]
         self.upgrade_cost = self.json["upgrade"]
         self.teleport_cost = self.json["teleport"]
@@ -33,7 +35,6 @@ class Board:
         self.tax_cost = self.json["tax"]
         self.startup_money = self.json["startup"]
         self.user_positions = {}
-
 
     def attach(self, user, callback, turncb):
         self.users.append(user)
@@ -50,34 +51,60 @@ class Board:
         if self.is_user_present(user.username):
             self.status[user.username] = True
             self.user_positions[user.username] = 0
+            self.user_amounts[user.username] = self.startup_money
 
-
-    def turn(self, user, command):
+    def turn(self, user, command, *args):
         # TODO: Take necessary action here depending on the command
-        """
-        self.curr_cell += 1
-        if self.curr_cell == len(self.cells):
-            self.curr_cell = 0
-        """
-        # print(f'[{user.username}]: choose command [roll]', end="")
-        print(f"[{user.username}]: {command}")
-        if command == "ROLL":
-            dice = random.randint(1,6)
-            self.log(f"[{user.username}] rolled {dice}.")
-            self.user_positions[user.username] += dice % len(self.cells)
-            print(f"[{user.username}] is now on cell {self.user_positions[user.username]}")
-            if self.cells[self.user_positions[user.username]].type == 'property':
-                print(f'[{user.username}]: choose command [{"buy" if self.cells[self.user_positions[user.username]].owner == user.username else "upgrade"}]' , end="")
-            elif self.cells[self.user_positions[user.username]].type == 'teleport':
-                print(f'[{user.username}]: choose command [teleport <cell>]', end="")
-            elif self.cells[self.user_positions[user.username]].type == 'tax':
-                print(f'[{user.username}]: payed taxes', end="")
-            elif self.cells[self.user_positions[user.username]].type == 'jail':
-                print(f'[{user.username}]: choose command []', end="")
-                
-            # print(f'[{user.username}]: choose command [buy]', end="")
-            self.turncbs[self.users[self.curr_user].username](self)
-        
+        cell = self.cells[self.user_positions[user.username]]
+        if command == "turn-roll":
+            dice_one = random.randint(1, 6)
+            dice_two = random.randint(1, 6)
+            self.user_positions[self.users[self.curr_user].username] = (self.user_positions[self.users[self.curr_user].username]+dice_one+dice_two) % len(self.cells)
+            print(f'[{self.users[self.curr_user].username}] rolled {dice_one+dice_two} and now at position {self.user_positions[self.users[self.curr_user].username]}')
+            if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail" and self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "start":
+                self.run_available(False)
+        elif command == "roll":
+            dice_one = random.randint(1, 6)
+            dice_two = random.randint(1, 6)
+            if dice_one == dice_two:
+                print(f"{user.username} get out of jail.")
+                self.user_positions[user.username] = (self.user_positions[user.username]+dice_one+dice_two) % len(self.cells)
+                print(f"[{user.username}] rolled {dice_one+dice_two} is now on cell {self.user_positions[user.username]}")
+            if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
+                self.run_available(False)
+
+            else:
+                print(f"{user.username} still stays in jail.")
+        elif command == "buy":
+            if self.user_amounts[user.username] >= cell["price"]:
+                cell["owner"] = user.username
+                self.user_amounts[user.username] -= cell["price"]
+            else:
+                print(f"{user.username} does not have required amount of money to buy.")
+        elif command == "upgrade":
+            if self.user_amounts[user.username] > self.upgrade_cost:
+                cell["level"] += 1
+                self.user_amounts[user.username] -= self.upgrade_cost
+            else:
+                print(f"{user.username} does not have required amount of money to upgrade.")
+        elif command == "bail":
+            if self.user_amounts[user.username] > self.jailbail_cost:
+                self.user_amounts[user.username] -= self.jailbail_cost
+                dice_one = random.randint(1, 6)
+                dice_two = random.randint(1, 6)
+                self.user_positions[user.username] = (self.user_positions[user.username]+dice_one + dice_two) % len(self.cells)
+                print(f"[{user.username}] is now on cell {self.user_positions[user.username]}")
+                self.run_available(False)
+        elif command == "teleport":
+            if self.user_amounts[user.username] > self.teleport_cost:
+                self.user_amounts[user.username] -= self.teleport_cost
+                self.user_positions[user.username] = int(args[0]) % len(self.cells)
+                print(f"{user.username} is teleported to {self.user_positions[user.username]}")
+                # TODO: Prevent recursive selection of teleport
+                if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
+                    self.run_available(False)
+            else:
+                print(f"{user.username} does not have required amount of money to teleport.")
 
     def get_user_state(self, user):
         return self.status[user.username]
@@ -85,11 +112,52 @@ class Board:
     def get_board_state(self):
         pass
 
-    def start_game(self):
-        while True:
-            print(f'[{self.curr_user}]: choose command [roll]', end="")
+    def run_available(self, first_time):
+        user = self.users[self.curr_user]
+        if first_time and self.cells[self.user_positions[user.username]]["type"] != "jail":
+            self.turncbs[self.users[self.curr_user].username](self, ['turn-roll'])
+            return
+        commands = []
+        if self.cells[self.user_positions[user.username]]["type"] == "jail":
+            commands.append("roll")
+            commands.append("bail")
+        elif self.cells[self.user_positions[user.username]]["type"] == "property":
+            if self.cells[self.user_positions[user.username]]["owner"] == user.username:
+                commands.append("upgrade")
+            elif self.cells[self.user_positions[user.username]]["owner"] is None:
+                commands.append("buy")
+            else:
+                cell = self.cells[self.user_positions[user.username]]
+                if self.user_amounts[user.username] >= cell["rents"][cell["level"]-1]:
+                    self.user_amounts[user.username] -= cell["rents"][cell["level"]-1]
+                    print(f"{user.username} paid the rent ${cell['rents'][cell['level']-1]}")
+                else:
+                    print(f"{user.username} should be eliminated from the game. cannot pay the rent.")
+                return
+        elif self.cells[self.user_positions[user.username]]["type"] == "teleport":
+            commands.append("teleport")
+        elif self.cells[self.user_positions[user.username]]["type"] == "tax":
+            if self.user_amounts[user.username] > self.tax_cost:
+                self.user_amounts[user.username] -= self.tax_cost
+                print(f"{user.username} paid the tax. good citizen.")
+            else:
+                print(f"{user.username} should be eliminated from the game. cannot pay the tax.")
+            return
+        elif self.cells[self.user_positions[user.username]]["type"] == "start":
+            return
+        else:
+            commands.append("turn-roll")
+        self.turncbs[self.users[self.curr_user].username](self, commands)
 
-            self.turncbs[self.users[self.curr_user].username](self)
+    def start_game(self):
+        for user in self.users:
+            if self.status[user.username] is False:
+                print("All users should marked as ready.")
+                return
+        while True:
+            print(f"turn of {self.users[self.curr_user].username} current location: {self.cells[self.user_positions[self.users[self.curr_user].username]]}")
+            # self.turncbs[self.users[self.curr_user].username](self, ["turn-roll"])
+            self.run_available(True)
             self.curr_user += 1
             if self.curr_user == len(self.users):
                 self.curr_user = 0
@@ -101,6 +169,5 @@ class Board:
         return False
 
     def log(self, message):
-        print(self.cells)
         for cb in self.callbacks:
             cb(message)

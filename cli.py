@@ -76,6 +76,16 @@ class MonopolyCli(cmd.Cmd):
         if args is not None:
             self.board.start_game()
 
+    def do_test(self, args):
+        self.do_board("input.json")
+        self.do_user("mehmet 1 2 3")
+        self.do_user("fazli 1 2 3")
+        self.do_attach("mehmet")
+        self.do_attach("fazli")
+        self.do_ready("mehmet")
+        self.do_ready("fazli")
+        self.do_start("")
+
 
 def parse(args, length):
     args = tuple(map(str, args.split()))

@@ -42,16 +42,16 @@ class User:
     def log(self, message):
         print(f"{[self.username]}: ", message)
 
-    def turncb(self, board: Board):
-        print("monopoly> ", end="")
-        c = input()
-        board.turn(self, c.upper())
-        """
-        if c == "y":
-            board.turn(self, "ROLL")
-        else:
-            board.turn(self, "OTHER")
-        """
-        
-        
-
+    def turncb(self, board: Board, options):
+        for option in options:
+            if option == "teleport":
+                c = input(f"monopoly> {option} [y INDEX/n]")
+            else:
+                c = input(f"monopoly> {option} [y/n]")
+            c = c.split(" ")
+            if c[0] == "y":
+                if option == "teleport":
+                    board.turn(self, option, c[1])
+                else:
+                    board.turn(self, option)
+                return
