@@ -44,9 +44,14 @@ class User:
 
     def turncb(self, board: Board):
         print("monopoly> ", end="")
-        c = input(f'{self.username} roll dice [y/n]: ')
+        c = input()
+        board.turn(self, c.upper())
+        """
         if c == "y":
             board.turn(self, "ROLL")
         else:
             board.turn(self, "OTHER")
+        """
+        
+        
 

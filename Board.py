@@ -1,8 +1,9 @@
 import json
+import random
 
 
 class Board:
-    users: []
+    users = []
     json = None
     status = {}
     callbacks = []
@@ -16,6 +17,7 @@ class Board:
     startup_money = 0
     curr_cell = 0
     curr_user = 0
+    user_positions = {}
 
     def __init__(self, file_path):
         self.users = []
@@ -30,6 +32,8 @@ class Board:
         self.jailbail_cost = self.json["jailbail"]
         self.tax_cost = self.json["tax"]
         self.startup_money = self.json["startup"]
+        user_positions = {}
+
 
     def attach(self, user, callback, turncb):
         self.users.append(user)
@@ -45,6 +49,8 @@ class Board:
     def ready(self, user):
         if self.is_user_present(user.username):
             self.status[user.username] = True
+            self.user_positions[user.username] = 0
+
 
     def turn(self, user, command):
         # TODO: Take necessary action here depending on the command
@@ -53,7 +59,25 @@ class Board:
         if self.curr_cell == len(self.cells):
             self.curr_cell = 0
         """
+        # print(f'[{user.username}]: choose command [roll]', end="")
         print(f"[{user.username}]: {command}")
+        if command == "ROLL":
+            dice = random.randint(1,6)
+            self.log(f"[{user.username}] rolled {dice}.")
+            self.user_positions[user.username] += dice % len(self.cells)
+            print(f"[{user.username}] is now on cell {self.user_positions[user.username]}")
+            if self.cells[self.user_positions[user.username]].type == 'property':
+                print(f'[{user.username}]: choose command [{"buy" if self.cells[self.user_positions[user.username]].owner == user.username else "upgrade"}]' , end="")
+            elif self.cells[self.user_positions[user.username]].type == 'teleport':
+                print(f'[{user.username}]: choose command [teleport <cell>]', end="")
+            elif self.cells[self.user_positions[user.username]].type == 'tax':
+                print(f'[{user.username}]: payed taxes', end="")
+            elif self.cells[self.user_positions[user.username]].type == 'jail':
+                print(f'[{user.username}]: choose command []', end="")
+                
+            # print(f'[{user.username}]: choose command [buy]', end="")
+            self.turncbs[self.users[self.curr_user].username](self)
+        
 
     def get_user_state(self, user):
         return self.status[user.username]
@@ -63,6 +87,8 @@ class Board:
 
     def start_game(self):
         while True:
+            print(f'[{self.curr_user}]: choose command [roll]', end="")
+
             self.turncbs[self.users[self.curr_user].username](self)
             self.curr_user += 1
             if self.curr_user == len(self.users):
