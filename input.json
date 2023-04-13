@@ -15,8 +15,7 @@
             400,
             600,
             900
-         ],
-         "owner": null
+         ]
       },
       {
          "type":"teleport"
@@ -38,6 +37,5 @@
       {
          "type":"jump"
       }
-   ],
-   "users_position": {}
+   ]
 }

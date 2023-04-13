@@ -32,7 +32,7 @@ class Board:
         self.jailbail_cost = self.json["jailbail"]
         self.tax_cost = self.json["tax"]
         self.startup_money = self.json["startup"]
-        user_positions = {}
+        self.user_positions = {}
 
 
     def attach(self, user, callback, turncb):
