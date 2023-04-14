@@ -14,11 +14,14 @@ class Board:
     teleport_cost = 0
     jailbail_cost = 0
     tax_cost = 0
+    lottery_amount = 0
     startup_money = 0
     curr_cell = 0
     curr_user = 0
     user_positions = {}
     user_amounts = {}
+    chance_card_types = ["upgrade", "downgrade", "color_upgrade", "color_downgrade", "goto_jail", "jail_free", "teleport", "lottery", "tax"]
+    curr_chance_card = None
 
     def __init__(self, file_path):
         self.users = []
@@ -32,6 +35,7 @@ class Board:
         self.upgrade_cost = self.json["upgrade"]
         self.teleport_cost = self.json["teleport"]
         self.jailbail_cost = self.json["jailbail"]
+        self.lottery_amount = self.json["lottery"]
         self.tax_cost = self.json["tax"]
         self.startup_money = self.json["startup"]
         self.user_positions = {}
@@ -63,6 +67,7 @@ class Board:
             print(f'[{self.users[self.curr_user].username}] rolled {dice_one+dice_two} and now at position {self.user_positions[self.users[self.curr_user].username]}')
             if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail" and self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "start":
                 self.run_available(False)
+
         elif command == "roll":
             dice_one = random.randint(1, 6)
             dice_two = random.randint(1, 6)
@@ -72,9 +77,14 @@ class Board:
                 print(f"[{user.username}] rolled {dice_one+dice_two} is now on cell {self.user_positions[user.username]}")
             if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
                 self.run_available(False)
-
             else:
                 print(f"{user.username} still stays in jail.")
+
+            if self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
+                while True:
+                    self.user_positions[user.username]
+                    if self.cells[self.user_positions[user.username]]["type"] == "jail":
+                        break
         elif command == "buy":
             if self.user_amounts[user.username] >= cell["price"]:
                 cell["owner"] = user.username
@@ -105,12 +115,64 @@ class Board:
                     self.run_available(False)
             else:
                 print(f"{user.username} does not have required amount of money to teleport.")
+        elif command == "pick":
+            if self.curr_chance_card == "upgrade":
+                if self.cells[int(args[0])]["type"] == "property":
+                    if self.user_amounts[user.username] > self.upgrade_cost:
+                        self.cells[int(args[0])]["level"] += 1
+                        self.user_amounts[user.username] -= self.upgrade_cost
+                    else:
+                        print(f"{user.username} does not have required amount of money to upgrade.")
+                else:
+                        print(f"{user.username} did not choose a property.")
+            elif self.curr_chance_card == "downgrade":
+                if self.cells[int(args[0])]["type"] == "property" and self.cells[int(args[0])]["level"] > 1:
+                    self.cells[int(args[0])]["level"] -= 1
+                else:
+                    print(f"{user.username} did not choose a property or the property is already in the lowest level.")
+            elif self.curr_chance_card == "color_upgrade":
+                for cell_item in self.cells:
+                    if cell_item["type"] == "property" and cell_item["color"] == args[0]:
+                        cell_item["level"] += 1
+            elif self.curr_chance_card == "color_downgrade":
+                for cell_item in self.cells:
+                    if cell_item["type"] == "property" and cell_item["color"] == args[0] and cell_item["level"] > 1:
+                        cell_item[int(args[0])]["level"] -= 1
 
     def get_user_state(self, user):
         return self.status[user.username]
 
     def get_board_state(self):
         pass
+
+    def handle_chance_card(self, chance_card):
+        user = self.users[self.curr_user]
+        commands = []
+
+        if chance_card == "upgrade" or chance_card == "downgrade" or chance_card == "color_upgrade" or chance_card == "color_downgrade":
+            commands.append("pick")
+        elif chance_card == "goto_jail":
+            while True:
+                self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
+                if self.cells[self.user_positions[user.username]]["type"] == "jail":
+                    print(f"{user.username} is gone to the jail.")
+                    break
+        elif chance_card == "jail_free":
+            # TODO: handle jail free card
+            pass
+        elif chance_card == "teleport":
+            commands.append("teleport")
+        elif chance_card == "lottery":
+            self.user_amounts[user.username] += self.lottery_amount
+        elif chance_card == "tax":
+            # TODO: tax should be calculated according to the # of properties the user have.
+            if self.user_amounts[user.username] > self.tax_cost:
+                self.user_amounts[user.username] -= self.tax_cost
+                print(f"{user.username} paid the tax. good citizen.")
+            else:
+                print(f"{user.username} should be eliminated from the game. cannot pay the tax.")
+
+        return commands
 
     def run_available(self, first_time):
         user = self.users[self.curr_user]
@@ -145,6 +207,19 @@ class Board:
             return
         elif self.cells[self.user_positions[user.username]]["type"] == "start":
             return
+        elif self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
+            while True:
+                self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
+                if self.cells[self.user_positions[user.username]]["type"] == "jail":
+                    print(f"{user.username} is gone to the jail.")
+                    break
+        elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
+            chance_card = random.choice(self.chance_card_types)
+            self.curr_chance_card = chance_card
+            commands = self.handle_chance_card(chance_card)
+            print(chance_card)
+            if len(commands) == 0:
+                return
         else:
             commands.append("turn-roll")
         self.turncbs[self.users[self.curr_user].username](self, commands)

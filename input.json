@@ -21,10 +21,58 @@
          "type":"teleport"
       },
       {
+         "type":"property",
+         "name":"ocean garden",
+         "cell":4,
+         "color":"blue",
+         "price":100,
+         "rents":[
+            40,
+            120,
+            300,
+            500,
+            700
+         ]
+      },
+      {
          "type":"tax"
       },
       {
+         "type":"property",
+         "name":"blue skyscraper",
+         "cell":6,
+         "color":"blue",
+         "price":140,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
          "type":"jail"
+      },
+      {
+         "type":"property",
+         "name":"red castle",
+         "cell":8,
+         "color":"red",
+         "price":150,
+         "rents":[
+            70,
+            180,
+            500,
+            700,
+            1000
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"goto_jail"
       }
    ],
    "upgrade":50,

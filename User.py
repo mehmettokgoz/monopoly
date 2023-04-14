@@ -50,7 +50,7 @@ class User:
                 c = input(f"monopoly> {option} [y/n]")
             c = c.split(" ")
             if c[0] == "y":
-                if option == "teleport":
+                if option == "teleport" or option == "pick":
                     board.turn(self, option, c[1])
                 else:
                     board.turn(self, option)
