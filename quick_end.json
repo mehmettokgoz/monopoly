@@ -8,13 +8,13 @@
          "name":"bostancı",
          "cell":2,
          "color":"red",
-         "price":120,
+         "price":10,
          "rents":[
-            50,
-            150,
-            400,
+            500,
             600,
-            900
+            700,
+            800,
+            1000
          ]
       },
       {
@@ -25,13 +25,13 @@
          "name":"ocean garden",
          "cell":4,
          "color":"blue",
-         "price":100,
+         "price":10,
          "rents":[
-            40,
-            120,
-            300,
             500,
-            700
+            600,
+            700,
+            800,
+            1000
          ]
       },
       {
@@ -42,31 +42,20 @@
          "name":"blue skyscraper",
          "cell":6,
          "color":"blue",
-         "price":140,
+         "price":10,
          "rents":[
-            50,
-            150,
-            400,
+            500,
             600,
-            900
+            700,
+            800,
+            1000
          ]
       },
       {
          "type":"jail"
       },
       {
-         "type":"property",
-         "name":"red castle",
-         "cell":8,
-         "color":"red",
-         "price":150,
-         "rents":[
-            70,
-            180,
-            500,
-            700,
-            1000
-         ]
+         "type":"tax"
       },
       {
          "type":"chance_card"
@@ -75,40 +64,29 @@
          "type":"goto_jail"
       },
       {
-         "type":"property",
-         "name":"tarabya",
-         "cell":11,
-         "color":"pink",
-         "price":150,
-         "rents":[
-            70,
-            180,
-            500,
-            700,
-            1000
-         ]
+         "type":"tax"
       },
-            {
+      {
          "type":"property",
          "name":"üsküdar",
          "cell":12,
          "color":"pink",
-         "price":150,
+         "price":10,
          "rents":[
-            70,
-            180,
             500,
+            600,
             700,
+            800,
             1000
          ]
       }
    ],
    "upgrade":50,
-   "teleport":100,
+   "teleport":10,
    "jailbail":100,
-   "tax":30,
+   "tax":200,
    "lottery":200,
-   "startup":1500,
+   "startup":50,
    "chances":[
       {
          "type":"jump"
