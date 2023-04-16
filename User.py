@@ -52,6 +52,9 @@ class User:
             if c[0] == "y":
                 if option == "teleport" or option == "pick":
                     board.turn(self, option, c[1])
+                elif option == "jail-free":
+                    board.turn(self, option, c[0])
                 else:
                     board.turn(self, option)
                 return
+ 

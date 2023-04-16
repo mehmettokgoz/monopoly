@@ -69,7 +69,7 @@ class Board:
         elif command == "roll":
             self.jail_roll(user)
         elif command == "jail-free":
-            self.jail_free(user)
+            self.jail_free(user, args[0])
         elif command == "buy":
             self.buy_property(user, cell)
         elif command == "upgrade":
@@ -91,12 +91,15 @@ class Board:
 
     def dice(self, user):
         # implements rolling two dice and sends user to the corresponding cell.
-        # if cell type is not jail or start, then to have the same user continue the function calls run_available(False)
+        # if cell type is not jail or start, then to have the same user continue the function calls run_available(False) is called
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(self.cells)
         self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
+        if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
+            self.run_available(False)
+            return
         if cell["type"] != "jail" and cell["type"] != "start":
             self.run_available(False)
 
@@ -167,11 +170,17 @@ class Board:
         while True:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
+                if self.jail_free_cards[user.username] != 0:
+                    self.run_available(False)
+                    break
                 print(f"{user.username} is gone to the jail.")
                 break
 
-    def jail_free(self, user):
+    def jail_free(self, user, answer):
         # implements the actions after the user uses the jail_free card
+        if answer == "n":
+            return
+        self.jail_free_cards[user.username] -= 1
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
