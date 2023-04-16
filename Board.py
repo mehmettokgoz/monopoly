@@ -98,6 +98,7 @@ class Board:
         self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
+            print(self.jail_free_cards[user.username] )
             self.run_available(False)
             return
         if cell["type"] != "jail" and cell["type"] != "start":
@@ -120,7 +121,7 @@ class Board:
         # implements bailing user out of jail if s/he has enough money.
         if self.user_amounts[user.username] > self.jailbail_cost:
             self.user_amounts[user.username] -= self.jailbail_cost
-            self.jail_free(user)
+            self.jail_free(user, "y")
         else:
             print(f"{user.username} does not have required money to bail jail.")
 
@@ -170,17 +171,22 @@ class Board:
         while True:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
+                print(f"{user.username} is gone to the jail.")
                 if self.jail_free_cards[user.username] != 0:
+                    print(self.jail_free_cards[user.username] )
+
                     self.run_available(False)
                     break
-                print(f"{user.username} is gone to the jail.")
                 break
 
     def jail_free(self, user, answer):
         # implements the actions after the user uses the jail_free card
         if answer == "n":
             return
-        self.jail_free_cards[user.username] -= 1
+        if self.jail_free_cards[user.username] > 0:
+            self.jail_free_cards[user.username] -= 1
+        print("after", self.jail_free_cards[user.username] )
+
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
