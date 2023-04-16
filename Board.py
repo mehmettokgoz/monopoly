@@ -98,7 +98,6 @@ class Board:
         self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
-            print(self.jail_free_cards[user.username] )
             self.run_available(False)
             return
         if cell["type"] != "jail" and cell["type"] != "start":
@@ -173,8 +172,6 @@ class Board:
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
                 print(f"{user.username} is gone to the jail.")
                 if self.jail_free_cards[user.username] != 0:
-                    print(self.jail_free_cards[user.username] )
-
                     self.run_available(False)
                     break
                 break
@@ -185,8 +182,7 @@ class Board:
             return
         if self.jail_free_cards[user.username] > 0:
             self.jail_free_cards[user.username] -= 1
-        print("after", self.jail_free_cards[user.username] )
-
+            
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
