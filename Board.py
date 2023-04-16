@@ -32,7 +32,6 @@ class Board:
             if cell["type"] == "property":
                 cell["level"] = 1
                 cell["owner"] = None
-        # TODO: replace chances with chance_card_types, we should dynamically get chance card types
         self.chances = self.json["chances"]
         for chance_card in self.json["chances"]:
             self.chance_card_types.append(chance_card["type"])
@@ -55,7 +54,6 @@ class Board:
             self.users.remove(user)
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
-            # TODO: Remove callback too
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -84,12 +82,16 @@ class Board:
             self.pick_chance_card(user, args[0])
 
     def get_user_state(self, user):
+        # TODO: Generate a report for each user, money and properties with their levels
         return self.status[user.username]
 
     def get_board_state(self):
+        # TODO: Generates a report for the board, properties, their level and owner
         return self.users, self.user_positions, self.user_amounts, self.cells
 
     def dice(self, user):
+        # implements rolling two dice and sends user to the corresponding cell.
+        # if cell type is not jail or start, then to have the same user continue the function calls run_available(False)
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(self.cells)
@@ -99,11 +101,12 @@ class Board:
             self.run_available(False)
 
     def teleport(self, user, arg):
+        # implements teleporting the user to the position he/she wants. Uses arg parameter as position index.
+        # if cell type is not jail, then to have the same user continue the function calls run_available(False)
         if self.user_amounts[user.username] > self.teleport_cost:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
             print(f"{user.username} is teleported to {self.user_positions[user.username]}")
-            # TODO: Prevent recursive selection of teleport
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
                 self.run_available(False)
@@ -111,6 +114,7 @@ class Board:
             print(f"{user.username} does not have required amount of money to teleport.")
 
     def bail(self, user):
+        # implements bailing user out of jail if s/he has enough money.
         if self.user_amounts[user.username] > self.jailbail_cost:
             self.user_amounts[user.username] -= self.jailbail_cost
             self.jail_free(user)
@@ -118,6 +122,9 @@ class Board:
             print(f"{user.username} does not have required money to bail jail.")
 
     def jail_roll(self, user):
+        # implements rolling dices for the user to come out of jail.
+        # if two dices' values are the same user gots out of jail, otherwise does not.
+        # if cell type is not jail, then to have the same user continue the function calls run_available(False)
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         if dice_one == dice_two:
@@ -134,6 +141,8 @@ class Board:
 
 
     def buy_property(self, user, cell):
+        # implements buying a property. 
+        # if the user has enough money, s/he gets the property.
         if self.user_amounts[user.username] >= cell["price"]:
             cell["owner"] = user.username
             self.user_amounts[user.username] -= cell["price"]
@@ -141,7 +150,12 @@ class Board:
             print(f"{user.username} does not have required amount of money to buy.")
 
     def upgrade_property(self, user, cell):
+        # implements upgrading a property. 
+        # if the user has enough money and the property is upgradable, s/he upgrades the property. 
         if self.user_amounts[user.username] > self.upgrade_cost:
+            if len(cell["rents"]) - 1 == cell["level"]:
+                print(f"The property is already upgraded to the highest level.")
+                return
             cell["level"] += 1
             self.user_amounts[user.username] -= self.upgrade_cost
             print(f"{user.username} upgraded the property.")
@@ -149,6 +163,7 @@ class Board:
             print(f"{user.username} does not have required amount of money to upgrade.")
 
     def go_to_jail(self, user):
+        # implements sending user to the closest jail cell.
         while True:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
@@ -156,6 +171,7 @@ class Board:
                 break
 
     def jail_free(self, user):
+        # implements the actions after the user uses the jail_free card
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
@@ -165,6 +181,7 @@ class Board:
             self.run_available(False)
 
     def pay_tax(self, user):
+        # calculates the tax amount and makes user pay it if they have any money.
         # TODO: Should 0 property equals to 0 tax?
         dynamic_tax_cost = self.tax_cost
         for cell in self.cells:
@@ -179,6 +196,8 @@ class Board:
             self.users.remove(user)
 
     def pay_rent(self, user):
+        # implements the pay rent actions.
+        # prints out the before and after balances of the owner and the tenant
         cell = self.cells[self.user_positions[user.username]]
         if self.user_amounts[user.username] >= cell["rents"][cell["level"] - 1]:
             prev_amount = self.user_amounts[user.username]
@@ -197,6 +216,7 @@ class Board:
         print(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
 
     def pick_chance_card(self, user, arg):
+        # implements actions for "pick" command for different chance cards.
         if self.curr_chance_card == "upgrade":
             if self.cells[int(arg)]["type"] == "property":
                 if self.user_amounts[user.username] > self.upgrade_cost:
@@ -221,6 +241,7 @@ class Board:
                     cell_item[int(arg)]["level"] -= 1
 
     def handle_chance_card(self, chance_card):
+        # calls related methods according to the given chance_card parameter.
         user = self.users[self.curr_user]
         commands = []
         if chance_card == "upgrade" or chance_card == "downgrade" or chance_card == "color_upgrade" or chance_card == "color_downgrade":
@@ -238,6 +259,7 @@ class Board:
         return commands
 
     def run_available(self, first_time):
+        # fills the commands array that is sent to the turncb function.
         user = self.users[self.curr_user]
         # If the turn is on the user and s/he is not at the jail, offer the dice
         if first_time and self.cells[self.user_positions[user.username]]["type"] != "jail":
@@ -285,15 +307,17 @@ class Board:
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
     def start_game(self):
+        # check if every user ready.
         for user in self.users:
             if self.status[user.username] is False:
                 print("All users should marked as ready.")
                 return
+        # main game loop
         while True:
             user = self.users[self.curr_user]
             print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}]", end="")
             if self.cells[self.user_positions[user.username]]['type']=="property":
-                print(f", name={self.cells[self.user_positions[user.username]]['name']}]")
+                print(f", [name={self.cells[self.user_positions[user.username]]['name']}]")
             else:
                 print("]")
             self.run_available(True)
@@ -306,6 +330,7 @@ class Board:
                 self.curr_user = 0
 
     def is_user_present(self, username):
+        # checks if the given user whose username is given from the command line is present.
         for user in self.users:
             if user.username == username:
                 return True
