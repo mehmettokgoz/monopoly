@@ -111,7 +111,31 @@
    "startup":1500,
    "chances":[
       {
-         "type":"jump"
+         "type":"upgrade"
+      },
+      {
+         "type": "downgrade"
+      },
+      {
+         "type": "color_upgrade"
+      },
+      {
+         "type": "color_downgrade"
+      },
+      {
+         "type": "goto_jail"
+      },
+      {
+         "type": "jail_free"
+      },
+      {
+         "type": "teleport"
+      },
+      {
+         "type": "lottery"
+      },
+      {
+         "type": "tax"
       }
    ]
 }

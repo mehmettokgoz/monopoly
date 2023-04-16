@@ -20,7 +20,7 @@ class Board:
     curr_user = 0
     user_positions = {}
     user_amounts = {}
-    chance_card_types = ["upgrade", "downgrade", "color_upgrade", "color_downgrade", "goto_jail", "jail_free", "teleport", "lottery", "tax"]
+    chance_card_types = []
     jail_free_cards = {}
     curr_chance_card = None
 
@@ -32,7 +32,10 @@ class Board:
             if cell["type"] == "property":
                 cell["level"] = 1
                 cell["owner"] = None
+        # TODO: replace chances with chance_card_types, we should dynamically get chance card types
         self.chances = self.json["chances"]
+        for chance_card in self.json["chances"]:
+            self.chance_card_types.append(chance_card["type"])
         self.upgrade_cost = self.json["upgrade"]
         self.teleport_cost = self.json["teleport"]
         self.jailbail_cost = self.json["jailbail"]
@@ -129,18 +132,6 @@ class Board:
         if self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
 
-    def pay_tax(self, user):
-        # TODO: Should 0 property equals to 0 tax?
-        dynamic_tax_cost = self.tax_cost
-        for cell in self.cells:
-            if cell["type"] == "property" and cell["owner"] == user.username:
-                dynamic_tax_cost += self.tax_cost
-        if self.user_amounts[user.username] > dynamic_tax_cost:
-            self.user_amounts[user.username] -= dynamic_tax_cost
-            print(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen.")
-        else:
-            print(f"{user.username} is eliminated from the game. cannot pay the tax.")
-            self.users.remove(user)
 
     def buy_property(self, user, cell):
         if self.user_amounts[user.username] >= cell["price"]:
@@ -173,15 +164,37 @@ class Board:
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 
+    def pay_tax(self, user):
+        # TODO: Should 0 property equals to 0 tax?
+        dynamic_tax_cost = self.tax_cost
+        for cell in self.cells:
+            if cell["type"] == "property" and cell["owner"] == user.username:
+                dynamic_tax_cost += self.tax_cost
+        if self.user_amounts[user.username] > dynamic_tax_cost:
+            prev_amount = self.user_amounts[user.username]
+            self.user_amounts[user.username] -= dynamic_tax_cost
+            print(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
+        else:
+            print(f"{user.username} is eliminated from the game. cannot pay the tax.")
+            self.users.remove(user)
+
     def pay_rent(self, user):
         cell = self.cells[self.user_positions[user.username]]
         if self.user_amounts[user.username] >= cell["rents"][cell["level"] - 1]:
+            prev_amount = self.user_amounts[user.username]
+            prev_owner = self.user_amounts[cell["owner"]]
             self.user_amounts[user.username] -= cell["rents"][cell["level"] - 1]
             self.user_amounts[cell["owner"]] += cell["rents"][cell["level"] - 1]
-            print(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]}")
+            print(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]}", end="")
+            print(f"tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]" )
         else:
             self.users.remove(user)
             print(f"{user.username} is eliminated from the game. cannot pay the rent.")
+
+    def won_lottery(self, user):
+        prev_amount = self.user_amounts[user.username]
+        self.user_amounts[user.username] += self.lottery_amount
+        print(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
 
     def pick_chance_card(self, user, arg):
         if self.curr_chance_card == "upgrade":
@@ -219,8 +232,7 @@ class Board:
         elif chance_card == "teleport":
             commands.append("teleport")
         elif chance_card == "lottery":
-            self.user_amounts[user.username] += self.lottery_amount
-            print(f"{user.username} won the lottery!")
+            self.won_lottery(user)
         elif chance_card == "tax":
             self.pay_tax(user)
         return commands

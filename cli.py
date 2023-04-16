@@ -97,6 +97,26 @@ class MonopolyCli(cmd.Cmd):
         self.do_ready("fazli")
         self.do_start("")
 
+    def do_test_chance_cards(self, args):
+        self.do_board("chance_cards.json")
+        self.do_user("mehmet 1 2 3")
+        self.do_user("fazli 1 2 3")
+        self.do_attach("mehmet")
+        self.do_attach("fazli")
+        self.do_ready("mehmet")
+        self.do_ready("fazli")
+        self.do_start("")
+
+    def do_test_tax_lottery(self, args):
+        self.do_board("tax_and_lottery.json")
+        self.do_user("mehmet 1 2 3")
+        self.do_user("fazli 1 2 3")
+        self.do_attach("mehmet")
+        self.do_attach("fazli")
+        self.do_ready("mehmet")
+        self.do_ready("fazli")
+        self.do_start("")
+
 
 def parse(args, length):
     args = tuple(map(str, args.split()))

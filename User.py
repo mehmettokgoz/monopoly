@@ -44,7 +44,7 @@ class User:
 
     def turncb(self, board: Board, options):
         for option in options:
-            if option == "teleport":
+            if option == "teleport" or option == "pick":
                 c = input(f"monopoly> [{self.username}] {option} [y INDEX/n]")
             else:
                 c = input(f"monopoly> [{self.username}] {option} [y/n]")
