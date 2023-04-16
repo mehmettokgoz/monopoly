@@ -84,14 +84,13 @@ class Board:
         return self.status[user.username]
 
     def get_board_state(self):
-        # TODO: Implement get board state
-        self.print_board()
+        return self.users, self.user_positions, self.user_amounts, self.cells
 
     def dice(self, user):
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(self.cells)
-        print(f'[{user.username}]: {dice_one + dice_two} and now at cell {self.cells[self.user_positions[self.users[self.curr_user].username]]}')
+        self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] != "jail" and cell["type"] != "start":
             self.run_available(False)
@@ -122,7 +121,7 @@ class Board:
             print(f"{user.username} get out of jail.")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
-            print(f"[{user.username}] rolled {dice_one + dice_two} is now on cell {self.user_positions[user.username]}")
+            self.print_dice(user, dice_one+dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
@@ -170,7 +169,7 @@ class Board:
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        print(f"[{user.username}] is now on cell {self.user_positions[user.username]}")
+        self.print_dice(user, dice_one+dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 
@@ -265,8 +264,8 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
+            print(f"[chance card: {chance_card}]")
             commands = self.handle_chance_card(chance_card)
-            print(chance_card)
             if len(commands) == 0:
                 return
         else:
@@ -280,8 +279,11 @@ class Board:
                 return
         while True:
             user = self.users[self.curr_user]
-            self.print_board()
-            print(f"[{user.username}]: {self.cells[self.user_positions[user.username]]}")
+            print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}]", end="")
+            if self.cells[self.user_positions[user.username]]['type']=="property":
+                print(f", name={self.cells[self.user_positions[user.username]]['name']}]")
+            else:
+                print("]")
             self.run_available(True)
             self.curr_user += 1
             if len(self.users) == 1:
@@ -297,11 +299,16 @@ class Board:
                 return True
         return False
 
-    def print_board(self):
+    def print_dice(self, user, dice):
+        print(f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
+        if self.cells[self.user_positions[user.username]]['type'] == "property":
+            print(f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]")
+        else:
+            print("]")
 
+    def print_board(self):
         print("---" * 55)
         for i in range(len(self.cells)):
-
             users = self.find_users_on_cell(i)
             if self.cells[i]['type'] == "property":
                 print(f"{self.cells[i]['name']}", end="")
