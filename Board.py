@@ -326,7 +326,7 @@ class Board:
         # main game loop
         while True:
             user = self.users[self.curr_user]
-            print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}]", end="")
+            print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
             if self.cells[self.user_positions[user.username]]['type']=="property":
                 print(f", [name={self.cells[self.user_positions[user.username]]['name']}]")
             else:
