@@ -1,4 +1,4 @@
-from Board import Board
+from game.Board import Board
 
 
 class User:
