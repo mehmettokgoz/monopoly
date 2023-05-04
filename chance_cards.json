@@ -1,0 +1,75 @@
+{
+   "cells":[
+      {
+         "type":"start"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"jail"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"goto_jail"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      }
+   ],
+   "upgrade":50,
+   "teleport":100,
+   "jailbail":100,
+   "tax":30,
+   "lottery":200,
+   "startup":1500,
+   "chances":[
+      {
+         "type":"upgrade"
+      },
+      {
+         "type": "downgrade"
+      },
+      {
+         "type": "color_upgrade"
+      },
+      {
+         "type": "color_downgrade"
+      },
+      {
+         "type": "goto_jail"
+      },
+      {
+         "type": "jail_free"
+      },
+      {
+         "type": "teleport"
+      },
+      {
+         "type": "lottery"
+      },
+      {
+         "type": "tax"
+      }
+   ]
+}

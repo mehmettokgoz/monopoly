@@ -73,6 +73,34 @@
       },
       {
          "type":"goto_jail"
+      },
+      {
+         "type":"property",
+         "name":"tarabya",
+         "cell":11,
+         "color":"pink",
+         "price":150,
+         "rents":[
+            70,
+            180,
+            500,
+            700,
+            1000
+         ]
+      },
+            {
+         "type":"property",
+         "name":"üsküdar",
+         "cell":12,
+         "color":"pink",
+         "price":150,
+         "rents":[
+            70,
+            180,
+            500,
+            700,
+            1000
+         ]
       }
    ],
    "upgrade":50,
@@ -83,7 +111,31 @@
    "startup":1500,
    "chances":[
       {
-         "type":"jump"
+         "type":"upgrade"
+      },
+      {
+         "type": "downgrade"
+      },
+      {
+         "type": "color_upgrade"
+      },
+      {
+         "type": "color_downgrade"
+      },
+      {
+         "type": "goto_jail"
+      },
+      {
+         "type": "jail_free"
+      },
+      {
+         "type": "teleport"
+      },
+      {
+         "type": "lottery"
+      },
+      {
+         "type": "tax"
       }
    ]
 }
