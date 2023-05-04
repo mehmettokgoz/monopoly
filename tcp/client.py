@@ -5,8 +5,8 @@ from sdk.protocol.client_message import Command
 
 
 class MonopolyTcpCli(cmd.Cmd):
-    intro = 'Welcome to the Monopoly shell. Type help or ? to list commands.\n'
-    prompt = 'monopoly> '
+    intro = 'Welcome to the Monopoly Client shell. Type help or ? to list commands.\n'
+    prompt = 'client> '
 
     client: MonopolyClient = None
 
@@ -14,11 +14,14 @@ class MonopolyTcpCli(cmd.Cmd):
         self.client = client
         super().__init__()
 
+    def do_create(self):
+        # TODO: Get port from args
+        port = 1543
+        self.client = MonopolyClient(port)
+
     def do_new(self, args):
         self.client.send_command(Command.NEW)
 
 
 if __name__ == '__main__':
-    port = 1543
-    c = MonopolyClient(port)
-    MonopolyTcpCli(c).cmdloop()
+    MonopolyTcpCli().cmdloop()
