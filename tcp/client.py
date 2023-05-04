@@ -1,6 +1,6 @@
 import sys
-from sdk.monopoly_client import MonopolyClient
 import cmd
+from sdk.monopoly_client import MonopolyClient
 from sdk.protocol.client_message import Command
 
 
@@ -15,10 +15,10 @@ class MonopolyTcpCli(cmd.Cmd):
         super().__init__()
 
     def do_new(self, args):
-        """Creates new board instance with given input file:  CREATE file_path"""
         self.client.send_command(Command.NEW)
 
 
 if __name__ == '__main__':
-    c = MonopolyClient(int(sys.argv[1]))
+    port = 1543
+    c = MonopolyClient(port)
     MonopolyTcpCli(c).cmdloop()
