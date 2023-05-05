@@ -1,4 +1,4 @@
-from game.Board import Board
+from sdk.game.Board import Board
 
 
 class User:

@@ -2,11 +2,13 @@
 import socket
 from threading import Thread
 
-from sdk.protocol.client_message import Command, NewBoardCodec, ListBoardCodec, OpenBoardCodec, CloseBoardCodec
+from protocol.client_message import Command, NewBoardCodec, ListBoardCodec, OpenBoardCodec, CloseBoardCodec
 
 
 class MonopolyClient:
     sock: socket.socket = None
+
+    logs = []
 
     def __init__(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,8 +32,8 @@ class MonopolyClient:
             req = self.sock.recv(1024)
             while req and req != '':
                 print(req)
+                self.logs.append(req)
                 req = self.sock.recv(1024)
-
         lt = Thread(target=listen)
         lt.start()
 

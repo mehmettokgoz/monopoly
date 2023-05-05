@@ -1,7 +1,7 @@
 import cmd
 
-from game.Board import Board
-from game.User import User
+from sdk.game.Board import Board
+from sdk.game.User import User
 
 
 class MonopolyCli(cmd.Cmd):

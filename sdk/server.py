@@ -1,6 +1,5 @@
 import cmd
-
-from sdk.monopoly_server import MonopolyServer
+from sdk.tcp.monopoly_server import MonopolyServer
 
 
 class MonopolyTcpServerCli(cmd.Cmd):
@@ -17,10 +16,10 @@ class MonopolyTcpServerCli(cmd.Cmd):
         port = 1543
         self.server = MonopolyServer(port)
 
-    def do_start(self):
+    def do_start(self, args):
         self.server.start()
 
-    def do_stop(self):
+    def do_stop(self, args):
         self.server.stop()
 
 

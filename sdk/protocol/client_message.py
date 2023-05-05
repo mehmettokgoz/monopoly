@@ -39,10 +39,12 @@ class NewBoardCodec(Codec):
         super().__init__()
 
     def new_board_encode(self):
-        pass
+        return "new".encode()
 
-    def new_board_decode(self):
-        pass
+    def new_board_decode(self, b):
+        req = b.decode()
+        req = req.split(',')
+        return req
 
 
 class ListBoardCodec(Codec):

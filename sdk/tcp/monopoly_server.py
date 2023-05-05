@@ -2,6 +2,11 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 
+from game.Board import Board
+
+# TODO: This variable should be thread-safe
+boards = []
+
 
 class Agent:
     sock: socket = None
@@ -29,6 +34,37 @@ class Agent:
             time.sleep(10)
             self.sock.send(log.encode())
 
+    """
+    Important note:
+    
+    There should be two function: turncb and log for communicating with client.
+    """
+    def authenticate(self):
+        pass
+
+    def turncb(self):
+        pass
+
+    def log(self):
+        pass
+
+    def call_new(self):
+        board = Board("../assets/input.json")
+        print("new board instance is created.")
+        boards.append(board)
+
+    def call_list(self):
+        pass
+
+    def call_open(self):
+        pass
+
+    def call_close(self):
+        pass
+
+    def call_others(self):
+        pass
+
     def start_agent(self):
         self.listener = Thread(target=self.listen_reqs)
         self.sender = Thread(target=self.send_logs)
@@ -44,11 +80,15 @@ class MonopolyServer:
     sock: socket
     t: Thread
     agents = []
+    port = 0
+
+    users = {
+        "mehmet": "tokgoz",
+        "fazli": "balkan"
+    }
 
     def __init__(self, port):
-        self.sock = socket(AF_INET, SOCK_STREAM)
-        self.sock.bind(('localhost', port))
-        self.sock.listen(10)
+        self.port = port
 
     def accept(self):
         try:
@@ -62,6 +102,9 @@ class MonopolyServer:
             self.sock.close()
 
     def start(self):
+        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock.bind(('localhost', self.port))
+        self.sock.listen(10)
         self.t = Thread(target=self.accept)
         self.t.start()
 

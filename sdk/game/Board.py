@@ -354,24 +354,6 @@ class Board:
         else:
             print("]")
 
-    def print_board(self):
-        print("---" * 55)
-        for i in range(len(self.cells)):
-            users = self.find_users_on_cell(i)
-            if self.cells[i]['type'] == "property":
-                print(f"{self.cells[i]['name']}", end="")
-                if self.cells[i]["owner"] is not None:
-                    print(f" [O:{self.cells[i]['owner'][0]}]", end="")
-            else:
-                print(f"{self.cells[i]['type']}", end="")
-            if len(users) != 0:
-                print(": ", end="")
-                for user in users:
-                    print(user, end=" ")
-            print(" | ", end="\t")
-        print("")
-        print("---" * 55)
-
     def find_users_on_cell(self, index):
         users = []
         for user in self.users:
