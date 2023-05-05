@@ -6,7 +6,7 @@ OPCODE | ARGS_START | [TYPE | LEN |VALUE] | ARGS_END
 from enum import Enum
 
 
-def decode_opcode(self, b):
+def decode_opcode(b):
     pass
 
 

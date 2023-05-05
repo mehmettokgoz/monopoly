@@ -25,7 +25,5 @@ class MonopolyTcpCli(cmd.Cmd):
         self.client.start_listen()
 
 
-
-
 if __name__ == '__main__':
     MonopolyTcpCli().cmdloop()

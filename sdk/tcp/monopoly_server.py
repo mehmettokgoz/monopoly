@@ -1,8 +1,11 @@
+import socket
 import time
 from socket import socket, AF_INET, SOCK_STREAM
-from threading import Thread
+from threading import Thread, Lock, Condition
 
 from game.Board import Board
+
+from protocol.client_message import decode_opcode
 
 # TODO: This variable should be thread-safe
 boards = []
@@ -11,19 +14,39 @@ boards = []
 class Agent:
     sock: socket = None
     peer: str
+    m = Lock()
+    c = Condition(m)
     listener: Thread
     sender: Thread
+    curr_move = None
 
     def __init__(self, sock, peer):
         self.sock = sock
         self.peer = peer
 
+    def authenticate(self):
+        # Use this function and validate the user
+        pass
+
     def listen_reqs(self):
         print(f"[{self.peer}] listener thread has started.")
         req = self.sock.recv(1024)
         while req and req != '':
+            opcode = decode_opcode(req)
+            if opcode == "command":
+                # A new game command is recieved
+                # Save choice to curr_move
+                # Call notify on c
+                pass
+            elif opcode == "new":
+                pass
+            elif opcode == "list":
+                pass
+            elif opcode == "close":
+                pass
+            elif opcode == "open":
+                pass
             print(req)
-            # TODO: Do useful operations in here
             req = self.sock.recv(1024)
 
     def send_logs(self):
@@ -34,18 +57,17 @@ class Agent:
             time.sleep(10)
             self.sock.send(log.encode())
 
-    """
-    Important note:
-    
-    There should be two function: turncb and log for communicating with client.
-    """
-    def authenticate(self):
-        pass
+    def turncb(self, board: Board, options):
+        # Send options to client
+        # Wait for condition variable to notify
+        # Response is saved globally for Agent
+        # Decode the response
+        # Call board
+        self.c.wait()
+        board.turn(self, [])
 
-    def turncb(self):
-        pass
-
-    def log(self):
+    def log(self, log):
+        # Send log to client
         pass
 
     def call_new(self):
@@ -56,7 +78,9 @@ class Agent:
     def call_list(self):
         pass
 
-    def call_open(self):
+    def call_open(self, req):
+        # Register self.turncb function for user board
+        # Register self.log function for user board
         pass
 
     def call_close(self):
