@@ -6,13 +6,12 @@ from tkinter import *
 
 from tcp.monopoly_client import MonopolyClient
 
-port = 1544
+port = 1556
 # TODO: This variable should be thread-safe
 client = MonopolyClient(port)
 
 
 class Window:
-    logs = []
 
     def show_entry_fields(self):
         print(("input %s" % (self.e1.get())))
@@ -31,16 +30,12 @@ class Window:
         self.scrollbar.pack(side="right", fill="y")
         self.lb.pack(side="left", fill="both", expand=True)
 
-        for i in self.logs:
-            self.lb.insert("end", i)
-
         self.subframe2 = Frame(self.master, background="gray")
 
         tk.Label(self.subframe2, text="command: ").grid(row=0)
         self.e1 = tk.Entry(self.subframe2)
         self.e1.grid(row=0, column=1)
-        tk.Button(self.subframe2, text='send', command=self.show_entry_fields).grid(row=0, column=2, sticky=tk.W,
-                                                                                    pady=4)
+        tk.Button(self.subframe2, text='send', command=self.show_entry_fields).grid(row=0, column=2, sticky=tk.W, pady=4)
         self.subframe2.pack(expand=True, fill=BOTH)
 
     def __init__(self, master):

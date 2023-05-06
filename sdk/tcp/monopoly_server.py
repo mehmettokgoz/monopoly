@@ -9,7 +9,7 @@ from protocol.client_message import decode_opcode, NewBoardCodec
 
 
 # TODO: This variable should be thread-safe
-boards = []
+boards = {}
 
 
 class Agent:
@@ -37,10 +37,10 @@ class Agent:
             print(req)
             print(type(req))
             opcode = decode_opcode(req)
-            if not self.is_auth:
-                self.sock.send("Please authenticate using your password.".encode())
-            elif opcode == "authenticate":
+            if opcode == "authenticate":
                 self.is_auth = True
+            elif not self.is_auth:
+                self.sock.send("Please authenticate using your password.".encode())
             elif opcode == "command":
                 # A new game command is recieved
                 # Save choice to curr_move
@@ -49,13 +49,14 @@ class Agent:
             elif opcode == "new":
                 print("new operation should be executed on server-side.")
                 board = Board("assets/input.json")
-                boards.append(board)
-                pass
+                boards["new_board"] = board
+                self.sock.send("New board is created!".encode())
             elif opcode == "list":
                 pass
             elif opcode == "close":
                 pass
             elif opcode == "open":
+                # boards["new_board"].attach(user, self.log, self.turncb)
                 pass
             req = self.sock.recv(1024)
 
@@ -101,9 +102,9 @@ class Agent:
 
     def start_agent(self):
         self.listener = Thread(target=self.listen_reqs)
-        self.sender = Thread(target=self.send_logs)
+        # self.sender = Thread(target=self.send_logs)
         self.listener.start()
-        self.sender.start()
+        # self.sender.start()
 
     def stop_agent(self):
         self.listener.join(1)
