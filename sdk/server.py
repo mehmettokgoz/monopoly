@@ -1,4 +1,5 @@
 import cmd
+import sys
 from tcp.monopoly_server import MonopolyServer
 
 
@@ -8,12 +9,12 @@ class MonopolyTcpServerCli(cmd.Cmd):
 
     server: MonopolyServer = None
 
-    def __init__(self):
+    def __init__(self, port):
+        self.port = port
         super().__init__()
 
     def do_create(self, args):
-        args = parse(args)
-        self.server = MonopolyServer(int(args[0]))
+        self.server = MonopolyServer(self.port)
 
     def do_start(self, args):
         self.server.start()
@@ -27,4 +28,5 @@ def parse(arg):
 
 
 if __name__ == '__main__':
-    MonopolyTcpServerCli().cmdloop()
+    print(sys.argv[-1])
+    MonopolyTcpServerCli(int(sys.argv[-1])).cmdloop()
