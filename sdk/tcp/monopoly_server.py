@@ -70,7 +70,7 @@ class Agent:
                 s = StartGameCodec().start_game_decode(req)
                 boards[s.name].start_game()
             elif opcode == "new":
-                board = Board(os.path.abspath("./../assets/input.json"))
+                board = Board(os.path.abspath("assets/input.json"))
                 boards["new_board"] = board
                 self.sock.send("New board is created!".encode())
             elif opcode == "list":
@@ -124,7 +124,7 @@ class Agent:
         self.sock.send(log.encode())
 
     def call_new(self):
-        board = Board("../assets/input.json")
+        board = Board(os.path.abspath("assets/input.json"))
         print("new board instance is created.")
         boards.append(board)
 

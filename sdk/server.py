@@ -12,14 +12,18 @@ class MonopolyTcpServerCli(cmd.Cmd):
         super().__init__()
 
     def do_create(self, args):
-        # TODO: Get port from args
-        self.server = MonopolyServer(1556)
+        args = parse(args)
+        self.server = MonopolyServer(int(args[0]))
 
     def do_start(self, args):
         self.server.start()
 
     def do_stop(self, args):
         self.server.stop()
+
+
+def parse(arg):
+    return tuple(map(int, arg.split()))
 
 
 if __name__ == '__main__':

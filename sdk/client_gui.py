@@ -1,3 +1,4 @@
+import sys
 import time
 import tkinter as tk
 from threading import Thread
@@ -6,7 +7,7 @@ from tkinter import *
 
 from tcp.monopoly_client import MonopolyClient
 
-port = 1556
+port = int(sys.argv[1])
 # TODO: This variable should be thread-safe
 client = MonopolyClient(port)
 
