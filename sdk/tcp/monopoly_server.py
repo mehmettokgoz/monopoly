@@ -5,7 +5,8 @@ from threading import Thread, Lock, Condition
 
 from game.Board import Board
 
-from protocol.client_message import decode_opcode
+from protocol.client_message import decode_opcode, NewBoardCodec
+
 
 # TODO: This variable should be thread-safe
 boards = []
@@ -19,6 +20,7 @@ class Agent:
     listener: Thread
     sender: Thread
     curr_move = None
+    is_auth = False
 
     def __init__(self, sock, peer):
         self.sock = sock
@@ -31,14 +33,23 @@ class Agent:
     def listen_reqs(self):
         print(f"[{self.peer}] listener thread has started.")
         req = self.sock.recv(1024)
-        while req and req != '':
+        while req and req != b'':
+            print(req)
+            print(type(req))
             opcode = decode_opcode(req)
-            if opcode == "command":
+            if not self.is_auth:
+                self.sock.send("Please authenticate using your password.".encode())
+            elif opcode == "authenticate":
+                self.is_auth = True
+            elif opcode == "command":
                 # A new game command is recieved
                 # Save choice to curr_move
                 # Call notify on c
                 pass
             elif opcode == "new":
+                print("new operation should be executed on server-side.")
+                board = Board("assets/input.json")
+                boards.append(board)
                 pass
             elif opcode == "list":
                 pass
@@ -46,7 +57,6 @@ class Agent:
                 pass
             elif opcode == "open":
                 pass
-            print(req)
             req = self.sock.recv(1024)
 
     def send_logs(self):
@@ -54,7 +64,7 @@ class Agent:
         while True:
             # TODO: Wait for monitor (logs) and send to client
             log = "This is a log message."
-            time.sleep(10)
+            time.sleep(1)
             self.sock.send(log.encode())
 
     def turncb(self, board: Board, options):
@@ -68,7 +78,7 @@ class Agent:
 
     def log(self, log):
         # Send log to client
-        pass
+        self.sock.send(log.encode())
 
     def call_new(self):
         board = Board("../assets/input.json")

@@ -7,7 +7,9 @@ from enum import Enum
 
 
 def decode_opcode(b):
-    pass
+    print(type(b))
+    print(b)
+    return b.decode().split(",")[0]
 
 
 def create_initial_buffer():
@@ -35,15 +37,19 @@ class Codec:
 
 class NewBoardCodec(Codec):
 
-    def __init__(self):
+    def __init__(self, name, path):
+        self.name = name
+        self.path = path
         super().__init__()
 
     def new_board_encode(self):
-        return "new".encode()
+        return ("new," + self.name + "," + self.path).encode("utf-8")
 
     def new_board_decode(self, b):
         req = b.decode()
         req = req.split(',')
+        self.name = "dsadsa"
+        self.path = "dsadsa"
         return req
 
 
@@ -60,7 +66,7 @@ class ListBoardCodec(Codec):
 
 
 class OpenBoardCodec(Codec):
-    
+
     def __init__(self):
         super().__init__()
 
@@ -69,10 +75,10 @@ class OpenBoardCodec(Codec):
 
     def open_board_decode(self):
         pass
-        
+
 
 class CloseBoardCodec(Codec):
-    
+
     def __init__(self):
         super().__init__()
 
@@ -81,4 +87,3 @@ class CloseBoardCodec(Codec):
 
     def close_board_decode(self):
         pass
-

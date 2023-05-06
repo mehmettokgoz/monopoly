@@ -6,12 +6,17 @@ from tkinter import *
 
 from tcp.monopoly_client import MonopolyClient
 
-port = 1543
+port = 1544
+# TODO: This variable should be thread-safe
 client = MonopolyClient(port)
 
 
 class Window:
     logs = []
+
+    def show_entry_fields(self):
+        print(("input %s" % (self.e1.get())))
+        client.send_command(self.e1.get())
 
     def update_window(self):
         self.subframe = Frame(self.master, background="blue")
@@ -31,13 +36,11 @@ class Window:
 
         self.subframe2 = Frame(self.master, background="gray")
 
-        def show_entry_fields():
-            self.lb.insert("First Name: %s\nLast Name:" % (e1.get()))
-
         tk.Label(self.subframe2, text="command: ").grid(row=0)
-        e1 = tk.Entry(self.subframe2)
-        e1.grid(row=0, column=1)
-        tk.Button(self.subframe2, text='send', command=show_entry_fields).grid(row=0, column=2, sticky=tk.W, pady=4)
+        self.e1 = tk.Entry(self.subframe2)
+        self.e1.grid(row=0, column=1)
+        tk.Button(self.subframe2, text='send', command=self.show_entry_fields).grid(row=0, column=2, sticky=tk.W,
+                                                                                    pady=4)
         self.subframe2.pack(expand=True, fill=BOTH)
 
     def __init__(self, master):
@@ -49,11 +52,13 @@ class Window:
     def add_new_log(self):
         i = 0
         client.c.acquire()
+        self.lb.insert("end", "starting to wait for client c")
         while True:
-            self.lb.insert("end", "starting to wait for client c")
+            # time.sleep(1)
             # Wait for new log to arrive - client.c is notified inside the MonopolyClient
             client.c.wait()
-            self.lb.insert("end",f"new log item {i}")
+            print("this thread waked up!")
+            self.lb.insert("end", client.logs.pop())
             i += 1
 
 

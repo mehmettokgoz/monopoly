@@ -12,6 +12,7 @@ class MonopolyClient:
     logs = []
     m = Lock()
     c = Condition(m)
+    sock: socket.socket
 
     def __init__(self, port):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -21,8 +22,12 @@ class MonopolyClient:
 
     def send_command(self, c, *args):
         s = None
-        if c == Command.NEW:
-            s = NewBoardCodec().new_board_encode()
+        if c == "call":
+            s = NewBoardCodec("yeni_board", "../assets&/input.json").new_board_encode()
+            print("new board coded is created")
+            print(s)
+        if c == "auth":
+            s = "authenticate,12345".encode("utf-8")
         elif c == Command.LIST:
             s = ListBoardCodec().list_board_encode()
         elif c == Command.OPEN:
@@ -33,9 +38,12 @@ class MonopolyClient:
 
     def listen(self):
         req = self.sock.recv(1024)
-        self.c.acquire()
         while req and req != '':
+            self.c.acquire()
+            print(req)
             self.logs.append(req)
-            self.c.notifyAll()
+            self.c.notify_all()
+            self.c.release()
             req = self.sock.recv(1024)
+
 

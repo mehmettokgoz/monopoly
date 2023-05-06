@@ -13,8 +13,7 @@ class MonopolyTcpServerCli(cmd.Cmd):
 
     def do_create(self, args):
         # TODO: Get port from args
-        port = 1543
-        self.server = MonopolyServer(port)
+        self.server = MonopolyServer(1544)
 
     def do_start(self, args):
         self.server.start()
