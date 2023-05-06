@@ -74,13 +74,17 @@ class GUI:
 
     def add_new_log(self):
         i = 0
-        client.c.acquire()
         self.list_box.insert("end", f"Client is listening localhost:{self.port}")
         while True:
+            client.c.acquire()
             client.c.wait()
             print("Condition variable is notified! New log is arrived from server.")
-            self.list_box.insert("end", client.logs.pop())
+            for log in client.logs:
+                print(log)
+                self.list_box.insert("end", log)
+            client.logs = []
             i += 1
+            client.c.release()
 
 
 if __name__ == "__main__":

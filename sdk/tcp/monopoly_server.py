@@ -26,6 +26,7 @@ class Agent:
     listener: Thread
     sender: Thread
     curr_move = None
+    curr_args = []
     is_auth = False
     user = None
 
@@ -61,8 +62,8 @@ class Agent:
                 # Call notify on c
                 s = CommandCodec().command_decode(req)
                 self.curr_move = s.command
+                self.curr_args = s.args
                 self.c.acquire()
-                print("NOTIFYINGGG")
                 self.c.notify_all()
                 self.c.release()
                 
@@ -111,7 +112,7 @@ class Agent:
         if self.curr_move == "teleport" or self.curr_move == "pick":
             # TODO : index?
             self.c.release()
-            board.turn(self.user, self.curr_move, "y")
+            board.turn(self.user, self.curr_move, self.curr_args[0])
         elif self.curr_move == "jail-free":
             self.c.release()
             board.turn(self.user, self.curr_move, "y")

@@ -113,12 +113,13 @@ class Board:
         if self.user_amounts[user.username] > self.teleport_cost:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
-            print(f"{user.username} is teleported to {self.user_positions[user.username]}")
+            
+            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
                 self.run_available(False)
         else:
-            print(f"{user.username} does not have required amount of money to teleport.")
+            self.log(f"{user.username} does not have required amount of money to teleport.\n")
 
     def bail(self, user):
         # implements bailing user out of jail if s/he has enough money.
@@ -126,7 +127,7 @@ class Board:
             self.user_amounts[user.username] -= self.jailbail_cost
             self.jail_free(user, "y")
         else:
-            print(f"{user.username} does not have required money to bail jail.")
+            self.log(f"{user.username} does not have required money to bail jail.\n")
 
     def jail_roll(self, user):
         # implements rolling dices for the user to come out of jail.
@@ -135,14 +136,14 @@ class Board:
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         if dice_one == dice_two:
-            print(f"{user.username} get out of jail.")
+            self.log(f"{user.username} get out of jail.\n")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
             self.print_dice(user, dice_one+dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
-            print(f"{user.username} still stays in jail.")
+            self.log(f"{user.username} still stays in jail.\n")
         if self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
 
@@ -154,27 +155,27 @@ class Board:
             cell["owner"] = user.username
             self.user_amounts[user.username] -= cell["price"]
         else:
-            print(f"{user.username} does not have required amount of money to buy.")
+            self.log(f"{user.username} does not have required amount of money to buy.\n")
 
     def upgrade_property(self, user, cell):
         # implements upgrading a property. 
         # if the user has enough money and the property is upgradable, s/he upgrades the property. 
         if self.user_amounts[user.username] > self.upgrade_cost:
             if len(cell["rents"]) - 1 == cell["level"]:
-                print(f"The property is already upgraded to the highest level.")
+                self.log(f"The property is already upgraded to the highest level.\n")
                 return
             cell["level"] += 1
             self.user_amounts[user.username] -= self.upgrade_cost
-            print(f"{user.username} upgraded the property.")
+            self.log(f"{user.username} upgraded the property.\n")
         else:
-            print(f"{user.username} does not have required amount of money to upgrade.")
+            self.log(f"{user.username} does not have required amount of money to upgrade.\n")
 
     def go_to_jail(self, user):
         # implements sending user to the closest jail cell.
         while True:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
-                print(f"{user.username} is gone to the jail.")
+                self.log(f"{user.username} is gone to the jail.\n")
                 if self.jail_free_cards[user.username] != 0:
                     self.run_available(False)
                     break
@@ -205,9 +206,9 @@ class Board:
         if self.user_amounts[user.username] > dynamic_tax_cost:
             prev_amount = self.user_amounts[user.username]
             self.user_amounts[user.username] -= dynamic_tax_cost
-            print(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
+            self.log(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
         else:
-            print(f"{user.username} is eliminated from the game. cannot pay the tax.")
+            self.log(f"{user.username} is eliminated from the game. cannot pay the tax.\n")
             self.users.remove(user)
 
     def pay_rent(self, user):
@@ -219,16 +220,15 @@ class Board:
             prev_owner = self.user_amounts[cell["owner"]]
             self.user_amounts[user.username] -= cell["rents"][cell["level"] - 1]
             self.user_amounts[cell["owner"]] += cell["rents"][cell["level"] - 1]
-            print(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]}", end="")
-            print(f"tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]" )
+            self.log(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]} tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]\n")
         else:
             self.users.remove(user)
-            print(f"{user.username} is eliminated from the game. cannot pay the rent.")
+            self.log(f"{user.username} is eliminated from the game. cannot pay the rent.\n")
 
     def won_lottery(self, user):
         prev_amount = self.user_amounts[user.username]
         self.user_amounts[user.username] += self.lottery_amount
-        print(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
+        self.log(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
 
     def pick_chance_card(self, user, arg):
         # implements actions for "pick" command for different chance cards.
@@ -238,14 +238,14 @@ class Board:
                     self.cells[int(arg)]["level"] += 1
                     self.user_amounts[user.username] -= self.upgrade_cost
                 else:
-                    print(f"{user.username} does not have required amount of money to upgrade.")
+                    self.log(f"{user.username} does not have required amount of money to upgrade.\n")
             else:
-                print(f"{user.username} did not choose a property.")
+                self.log(f"{user.username} did not choose a property.\n")
         elif self.curr_chance_card == "downgrade":
             if self.cells[int(arg)]["type"] == "property" and self.cells[int(arg)]["level"] > 1:
                 self.cells[int(arg)]["level"] -= 1
             else:
-                print(f"{user.username} did not choose a property or the property is already in the lowest level.")
+                self.log(f"{user.username} did not choose a property or the property is already in the lowest level.\n")
         elif self.curr_chance_card == "color_upgrade":
             for cell_item in self.cells:
                 if cell_item["type"] == "property" and cell_item["color"] == arg:
@@ -313,7 +313,7 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
-            print(f"[chance card: {chance_card}]")
+            self.log(f"[chance card: {chance_card}]\n")
             commands = self.handle_chance_card(chance_card)
             if len(commands) == 0:
                 return
@@ -335,8 +335,8 @@ class Board:
             self.run_available(True)
             self.curr_user += 1
             if len(self.users) == 1:
-                print("GAME OVER! ")
-                print(f"{self.users[0].username} WON THE GAME")
+                self.log("GAME OVER! \n")
+                self.log(f"{self.users[0].username} WON THE GAME\n")
                 break
             elif self.curr_user == len(self.users):
                 self.curr_user = 0
@@ -363,9 +363,9 @@ class Board:
     def print_dice(self, user, dice):
         log_string = f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
         if self.cells[self.user_positions[user.username]]['type'] == "property":
-            log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]"
+            log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]\n"
         else:
-            log_string += "]"
+            log_string += "]\n"
         self.log(log_string)
 
     def find_users_on_cell(self, index):
