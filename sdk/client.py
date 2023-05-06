@@ -21,9 +21,6 @@ class MonopolyTcpCli(cmd.Cmd):
     def do_new(self, args):
         self.client.send_command(Command.NEW)
 
-    def do_listen(self, args):
-        self.client.start_listen()
-
 
 if __name__ == '__main__':
     MonopolyTcpCli().cmdloop()

@@ -8,18 +8,16 @@ from protocol.client_message import NewBoardCodec, Command, ListBoardCodec, Open
 class MonopolyClient:
     sock: socket.socket = None
 
+    # TODO: Logs queue should be thread-safe
     logs = []
     m = Lock()
     c = Condition(m)
 
     def __init__(self, port):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("127.0.0.1", port))
-        self.sock = sock
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect(("127.0.0.1", port))
         lt = Thread(target=self.listen)
-        pl = Thread(target=self.print_logs)
         lt.start()
-        pl.start()
 
     def send_command(self, c, *args):
         s = None
@@ -35,17 +33,9 @@ class MonopolyClient:
 
     def listen(self):
         req = self.sock.recv(1024)
+        self.c.acquire()
         while req and req != '':
             self.logs.append(req)
             self.c.notifyAll()
             req = self.sock.recv(1024)
-
-    def print_logs(self):
-        self.m.acquire()
-        while True:
-            self.c.wait()
-            print(self.logs.pop())
-
-
-
 
