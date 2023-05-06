@@ -1,5 +1,5 @@
 import cmd
-from sdk.tcp.monopoly_server import MonopolyServer
+from tcp.monopoly_server import MonopolyServer
 
 
 class MonopolyTcpServerCli(cmd.Cmd):

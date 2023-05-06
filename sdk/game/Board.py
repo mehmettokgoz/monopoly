@@ -1,5 +1,6 @@
 import json
 import random
+from threading import Thread, Lock, Condition
 
 
 class Board:
@@ -48,12 +49,15 @@ class Board:
         self.callbacks.append(callback)
         self.turncbs[user.username] = turncb
         self.status[user.username] = False
+        self.log(user.username + " is attached to the board.")
 
     def detach(self, user):
         if self.is_user_present(user.username):
             self.users.remove(user)
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
+            self.log(user.username + " is detached from the board.")
+
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -315,22 +319,19 @@ class Board:
                 return
         else:
             commands.append("dice")
+        # self.log(str(commands))
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
-    def start_game(self):
-        # check if every user ready.
-        for user in self.users:
-            if self.status[user.username] is False:
-                print("All users should marked as ready.")
-                return
-        # main game loop
+    def game_loop(self):
+        self.log("Game is started!")
         while True:
             user = self.users[self.curr_user]
-            print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
+            log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
             if self.cells[self.user_positions[user.username]]['type']=="property":
-                print(f", [name={self.cells[self.user_positions[user.username]]['name']}]")
+                log_string += f", [name={self.cells[self.user_positions[user.username]]['name']}]\n"
             else:
-                print("]")
+                log_string += "]\n"
+            self.log(log_string)
             self.run_available(True)
             self.curr_user += 1
             if len(self.users) == 1:
@@ -340,6 +341,18 @@ class Board:
             elif self.curr_user == len(self.users):
                 self.curr_user = 0
 
+    def start_game(self):
+        # check if every user ready.
+        
+        for user in self.users:
+            if self.status[user.username] is False:
+                self.log("All users should marked as ready.")
+                return
+        # main game loop
+        # Make this thread
+        t = Thread(target=self.game_loop)
+        t.start()
+
     def is_user_present(self, username):
         # checks if the given user whose username is given from the command line is present.
         for user in self.users:
@@ -348,11 +361,12 @@ class Board:
         return False
 
     def print_dice(self, user, dice):
-        print(f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
+        log_string = f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
         if self.cells[self.user_positions[user.username]]['type'] == "property":
-            print(f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]")
+            log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]"
         else:
-            print("]")
+            log_string += "]"
+        self.log(log_string)
 
     def find_users_on_cell(self, index):
         users = []
