@@ -37,7 +37,7 @@ class Codec:
 
 class NewBoardCodec(Codec):
 
-    def __init__(self, name , path):
+    def __init__(self, name = "", path = ""):
         self.name = name
         self.path = path
         super().__init__()
@@ -48,9 +48,9 @@ class NewBoardCodec(Codec):
     def new_board_decode(self, b):
         req = b.decode()
         req = req.split(',')
-        self.name = "dsadsa"
-        self.path = "dsadsa"
-        return req
+        self.name = req[1]
+        self.path = req[2]
+        return self
 
 
 class ListBoardCodec(Codec):
@@ -93,6 +93,21 @@ class CloseBoardCodec(Codec):
         return ("close," + self.name).encode("utf-8")
 
     def close_board_decode(self, req):
+        req = req.decode()
+        req = req.split(',')
+        self.name = req[1]
+        return self
+
+class ReadyBoardCodec(Codec):
+
+    def __init__(self, name = ""):
+        self.name = name
+        super().__init__()
+
+    def ready_board_encode(self):
+        return ("ready," + self.name).encode("utf-8")
+
+    def ready_board_decode(self, req):
         req = req.decode()
         req = req.split(',')
         self.name = req[1]

@@ -7,7 +7,7 @@ import os
 from game.Board import Board
 from game.User import User
 
-from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, CloseBoardCodec, CommandCodec
+from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, CloseBoardCodec, CommandCodec, ReadyBoardCodec
 
 
 # TODO: This variable should be thread-safe
@@ -38,7 +38,6 @@ class Agent:
         # Use this function and validate the user
         if users_database[s.name] == s.password:
             self.is_auth = True
-            # user cre
             self.user = User(s.name, s.name, s.name, s.password)
             self.log("authentication is successful!")
         else:
@@ -66,13 +65,13 @@ class Agent:
                 self.c.acquire()
                 self.c.notify_all()
                 self.c.release()
-                
             elif opcode == "start":
                 s = StartGameCodec().start_game_decode(req)
                 boards[s.name].start_game()
             elif opcode == "new":
-                board = Board(os.path.abspath("assets/input.json"))
-                boards["new_board"] = board
+                s = NewBoardCodec().new_board_decode(req)
+                board = Board(os.path.abspath(s.path))
+                boards[s.name] = board
                 self.sock.send("New board is created!".encode())
             elif opcode == "list":
                 pass
@@ -81,10 +80,10 @@ class Agent:
                 boards[s.name].detach(self.user)
             elif opcode == "open":
                 s = OpenBoardCodec().open_board_decode(req)
-                print("OPEN:", req, s.name, boards)
                 boards[s.name].attach(self.user, self.log, self.turncb)
-
+            elif opcode == "ready":
                 # TODO : Think about the ready function in Board.py
+                s = ReadyBoardCodec().ready_board_decode(req)
                 boards[s.name].ready(self.user)
             
             req = self.sock.recv(1024)
@@ -106,7 +105,6 @@ class Agent:
         self.log("your command options: " + str(options))
         self.c.acquire()
         self.c.wait()
-        print("OPTIONS TURNCB IN SERVER: ", options)
 
         # TODO: release when it is recursive
         if self.curr_move == "teleport" or self.curr_move == "pick":

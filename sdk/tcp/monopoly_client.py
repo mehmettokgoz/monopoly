@@ -2,7 +2,7 @@
 import socket
 from threading import Thread, Lock, Condition
 
-from protocol.client_message import NewBoardCodec, Command, StartGameCodec, ListBoardCodec, OpenBoardCodec, CloseBoardCodec, AuthCodec, CommandCodec
+from protocol.client_message import NewBoardCodec, Command, StartGameCodec, ListBoardCodec, OpenBoardCodec, CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec
 
 
 class MonopolyClient:
@@ -24,10 +24,10 @@ class MonopolyClient:
         command_and_args = c.split(",")
         command = command_and_args[0]
         args = command_and_args[1:]
-        print(args)
+        print("args:",args)
         s = None
         if command == "call":
-            s = NewBoardCodec("yeni_board", "../assets&/input.json").new_board_encode()
+            s = NewBoardCodec(args[0], args[1]).new_board_encode()
             print("new board coded is created")
             print(s)
         if command == "auth":
@@ -43,8 +43,8 @@ class MonopolyClient:
             s = StartGameCodec(args[0]).start_game_encode()
         elif command == "command":
             s = CommandCodec(args[0], args[1:]).command_encode()
-        elif command == "y" or command == "n":
-            s = command.encode()
+        elif command == "ready":
+            s = ReadyBoardCodec(args[0]).ready_board_encode()
         self.sock.send(s)
 
     def listen(self):

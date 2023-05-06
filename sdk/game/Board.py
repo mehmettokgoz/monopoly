@@ -65,6 +65,7 @@ class Board:
             self.user_positions[user.username] = 0
             self.user_amounts[user.username] = self.startup_money
             self.jail_free_cards[user.username] = 0
+            self.log(user.username + " is ready.")
 
     def turn(self, user, command, *args):
         cell = self.cells[self.user_positions[user.username]]
