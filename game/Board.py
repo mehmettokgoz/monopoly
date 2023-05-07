@@ -399,7 +399,5 @@ class Board:
         return users
 
     def log(self, message):
-        print("LOG SEND STAGE")
-        print(self.callbacks)
-        for a in self.users:
-            self.callbacks[a.username](message)
+        for un in self.callbacks:
+            self.callbacks[un](message)
