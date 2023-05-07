@@ -14,7 +14,10 @@ from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec
 boards = {}
 users_db = {
     "mehmet": "tokgoz",
-    "fazli": "balkan"
+    "fazli": "balkan",
+    "onur": "yuce",
+    "mirza": "altay",
+    "tunahan": "dundar"
 }
 
 block = Lock()
