@@ -1,12 +1,14 @@
 import json
 import random
+import threading
+from threading import Thread, Lock, Condition
 
 
 class Board:
     users = []
     json = None
     status = {}
-    callbacks = []
+    callbacks = {}
     turncbs = {}
     cells = None
     chances = None
@@ -23,9 +25,12 @@ class Board:
     chance_card_types = []
     jail_free_cards = {}
     curr_chance_card = None
+    is_started = False
 
     def __init__(self, file_path):
+        self.is_started = False
         self.users = []
+        self.callbacks = {}
         self.json = json.loads(open(file_path, "r").read())
         self.cells = self.json["cells"]
         for cell in self.cells:
@@ -44,16 +49,35 @@ class Board:
         self.user_positions = {}
 
     def attach(self, user, callback, turncb):
-        self.users.append(user)
-        self.callbacks.append(callback)
-        self.turncbs[user.username] = turncb
-        self.status[user.username] = False
+        if not self.is_started:
+            print(self.users)
+            for a in self.users:
+                print(a.username)
+            self.users.append(user)
+            self.callbacks[user.username] = callback
+            self.turncbs[user.username] = turncb
+            self.status[user.username] = False
+            print("Now attaching: ",threading.current_thread().ident)
+            self.log(user.username + " is attached to the board.")
+            print(self.users)
+            for a in self.users:
+                print(a.username)
+        else:
+            callback("The game is started, you can not join as player.")
+
+    def watch(self, user, callback):
+        self.callbacks[user.username] = callback
+
+    def unwatch(self, user):
+        self.callbacks.pop(user.username)
 
     def detach(self, user):
         if self.is_user_present(user.username):
             self.users.remove(user)
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
+            self.callbacks.pop(user.username)
+            self.log(user.username + " is detached from the board.")
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -61,6 +85,7 @@ class Board:
             self.user_positions[user.username] = 0
             self.user_amounts[user.username] = self.startup_money
             self.jail_free_cards[user.username] = 0
+            self.log(user.username + " is ready.")
 
     def turn(self, user, command, *args):
         cell = self.cells[self.user_positions[user.username]]
@@ -94,7 +119,8 @@ class Board:
         # if cell type is not jail or start, then to have the same user continue the function calls run_available(False) is called
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
-        self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(self.cells)
+        self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
+            self.cells)
         self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
@@ -109,12 +135,21 @@ class Board:
         if self.user_amounts[user.username] > self.teleport_cost:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
-            print(f"{user.username} is teleported to {self.user_positions[user.username]}")
+
+            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
+            
+            log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
+            if self.cells[self.user_positions[user.username]]['type'] == "property":
+                log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]\n"
+            else:
+                log_string += "]\n"
+            self.log(log_string)
+
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
                 self.run_available(False)
         else:
-            print(f"{user.username} does not have required amount of money to teleport.")
+            self.log(f"{user.username} does not have required amount of money to teleport.\n")
 
     def bail(self, user):
         # implements bailing user out of jail if s/he has enough money.
@@ -122,7 +157,7 @@ class Board:
             self.user_amounts[user.username] -= self.jailbail_cost
             self.jail_free(user, "y")
         else:
-            print(f"{user.username} does not have required money to bail jail.")
+            self.log(f"{user.username} does not have required money to bail jail.\n")
 
     def jail_roll(self, user):
         # implements rolling dices for the user to come out of jail.
@@ -131,17 +166,16 @@ class Board:
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         if dice_one == dice_two:
-            print(f"{user.username} get out of jail.")
+            self.log(f"{user.username} get out of jail.\n")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
-            self.print_dice(user, dice_one+dice_two)
+            self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
-            print(f"{user.username} still stays in jail.")
+            self.log(f"{user.username} still stays in jail.\n")
         if self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
-
 
     def buy_property(self, user, cell):
         # implements buying a property. 
@@ -149,31 +183,29 @@ class Board:
         if self.user_amounts[user.username] >= cell["price"]:
             cell["owner"] = user.username
             self.user_amounts[user.username] -= cell["price"]
+            self.log(f"{user.username} bought the property.\n")
         else:
-            print(f"{user.username} does not have required amount of money to buy.")
+            self.log(f"{user.username} does not have required amount of money to buy.\n")
 
     def upgrade_property(self, user, cell):
         # implements upgrading a property. 
         # if the user has enough money and the property is upgradable, s/he upgrades the property. 
         if self.user_amounts[user.username] > self.upgrade_cost:
             if len(cell["rents"]) - 1 == cell["level"]:
-                print(f"The property is already upgraded to the highest level.")
+                self.log(f"The property is already upgraded to the highest level.\n")
                 return
             cell["level"] += 1
             self.user_amounts[user.username] -= self.upgrade_cost
-            print(f"{user.username} upgraded the property.")
+            self.log(f"{user.username} upgraded the property.\n")
         else:
-            print(f"{user.username} does not have required amount of money to upgrade.")
+            self.log(f"{user.username} does not have required amount of money to upgrade.\n")
 
     def go_to_jail(self, user):
         # implements sending user to the closest jail cell.
         while True:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
-                print(f"{user.username} is gone to the jail.")
-                if self.jail_free_cards[user.username] != 0:
-                    self.run_available(False)
-                    break
+                self.log(f"{user.username} is gone to the jail.\n")
                 break
 
     def jail_free(self, user, answer):
@@ -182,12 +214,12 @@ class Board:
             return
         if self.jail_free_cards[user.username] > 0:
             self.jail_free_cards[user.username] -= 1
-            
+
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one+dice_two)
+        self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 
@@ -201,9 +233,10 @@ class Board:
         if self.user_amounts[user.username] > dynamic_tax_cost:
             prev_amount = self.user_amounts[user.username]
             self.user_amounts[user.username] -= dynamic_tax_cost
-            print(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
+            self.log(
+                f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
         else:
-            print(f"{user.username} is eliminated from the game. cannot pay the tax.")
+            self.log(f"{user.username} is eliminated from the game. cannot pay the tax.\n")
             self.users.remove(user)
 
     def pay_rent(self, user):
@@ -215,16 +248,16 @@ class Board:
             prev_owner = self.user_amounts[cell["owner"]]
             self.user_amounts[user.username] -= cell["rents"][cell["level"] - 1]
             self.user_amounts[cell["owner"]] += cell["rents"][cell["level"] - 1]
-            print(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]}", end="")
-            print(f"tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]" )
+            self.log(
+                f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]} tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]\n")
         else:
             self.users.remove(user)
-            print(f"{user.username} is eliminated from the game. cannot pay the rent.")
+            self.log(f"{user.username} is eliminated from the game. cannot pay the rent.\n")
 
     def won_lottery(self, user):
         prev_amount = self.user_amounts[user.username]
         self.user_amounts[user.username] += self.lottery_amount
-        print(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]")
+        self.log(f"{user.username} won the lottery! [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
 
     def pick_chance_card(self, user, arg):
         # implements actions for "pick" command for different chance cards.
@@ -234,14 +267,14 @@ class Board:
                     self.cells[int(arg)]["level"] += 1
                     self.user_amounts[user.username] -= self.upgrade_cost
                 else:
-                    print(f"{user.username} does not have required amount of money to upgrade.")
+                    self.log(f"{user.username} does not have required amount of money to upgrade.\n")
             else:
-                print(f"{user.username} did not choose a property.")
+                self.log(f"{user.username} did not choose a property.\n")
         elif self.curr_chance_card == "downgrade":
             if self.cells[int(arg)]["type"] == "property" and self.cells[int(arg)]["level"] > 1:
                 self.cells[int(arg)]["level"] -= 1
             else:
-                print(f"{user.username} did not choose a property or the property is already in the lowest level.")
+                self.log(f"{user.username} did not choose a property or the property is already in the lowest level.\n")
         elif self.curr_chance_card == "color_upgrade":
             for cell_item in self.cells:
                 if cell_item["type"] == "property" and cell_item["color"] == arg:
@@ -309,36 +342,46 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
-            print(f"[chance card: {chance_card}]")
+            self.log(f"[chance card: {chance_card}]\n")
             commands = self.handle_chance_card(chance_card)
             if len(commands) == 0:
                 return
         else:
             commands.append("dice")
+        # self.log(str(commands))
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
-    def start_game(self):
-        # check if every user ready.
-        for user in self.users:
-            if self.status[user.username] is False:
-                print("All users should marked as ready.")
-                return
-        # main game loop
+    def game_loop(self):
         while True:
             user = self.users[self.curr_user]
-            print(f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
-            if self.cells[self.user_positions[user.username]]['type']=="property":
-                print(f", [name={self.cells[self.user_positions[user.username]]['name']}]")
+            log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
+            if self.cells[self.user_positions[user.username]]['type'] == "property":
+                log_string += f", [name={self.cells[self.user_positions[user.username]]['name']}]\n"
             else:
-                print("]")
+                log_string += "]\n"
+            self.log(log_string)
             self.run_available(True)
             self.curr_user += 1
             if len(self.users) == 1:
-                print("GAME OVER! ")
-                print(f"{self.users[0].username} WON THE GAME")
+                self.log("GAME OVER! \n")
+                self.log(f"{self.users[0].username} WON THE GAME\n")
                 break
             elif self.curr_user == len(self.users):
                 self.curr_user = 0
+
+    def start_game(self):
+        # check if every user ready.
+
+        for user in self.users:
+            if self.status[user.username] is False:
+                self.log("All users should marked as ready.")
+                return
+        self.log("Game is started!")
+        self.is_started = True
+        # main game loop
+        # Make this thread
+        t = Thread(target=self.game_loop)
+        t.start()
 
     def is_user_present(self, username):
         # checks if the given user whose username is given from the command line is present.
@@ -348,29 +391,12 @@ class Board:
         return False
 
     def print_dice(self, user, dice):
-        print(f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}", end="")
+        log_string = f"[{user.username}] [dice: {dice}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
         if self.cells[self.user_positions[user.username]]['type'] == "property":
-            print(f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]")
+            log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]\n"
         else:
-            print("]")
-
-    def print_board(self):
-        print("---" * 55)
-        for i in range(len(self.cells)):
-            users = self.find_users_on_cell(i)
-            if self.cells[i]['type'] == "property":
-                print(f"{self.cells[i]['name']}", end="")
-                if self.cells[i]["owner"] is not None:
-                    print(f" [O:{self.cells[i]['owner'][0]}]", end="")
-            else:
-                print(f"{self.cells[i]['type']}", end="")
-            if len(users) != 0:
-                print(": ", end="")
-                for user in users:
-                    print(user, end=" ")
-            print(" | ", end="\t")
-        print("")
-        print("---" * 55)
+            log_string += "]\n"
+        self.log(log_string)
 
     def find_users_on_cell(self, index):
         users = []
@@ -380,5 +406,5 @@ class Board:
         return users
 
     def log(self, message):
-        for cb in self.callbacks:
-            cb(message)
+        for un in self.callbacks:
+            self.callbacks[un](message)

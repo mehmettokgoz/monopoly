@@ -1,4 +1,4 @@
-from Board import Board
+from game.Board import Board
 
 
 class User:
@@ -45,6 +45,7 @@ class User:
     def turncb(self, board: Board, options):
         for option in options:
             if option == "teleport" or option == "pick":
+                print(f"monopoly> [{self.username}] {option} [y INDEX/n]")
                 c = input(f"monopoly> [{self.username}] {option} [y INDEX/n]")
             else:
                 c = input(f"monopoly> [{self.username}] {option} [y/n]")
