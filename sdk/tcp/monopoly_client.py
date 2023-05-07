@@ -24,15 +24,11 @@ class MonopolyClient:
         command_and_args = c.split(",")
         command = command_and_args[0]
         args = command_and_args[1:]
-        print("args:",args)
         s = None
-        if command == "call":
+        if command == "new":
             s = NewBoardCodec(args[0], args[1]).new_board_encode()
-            print("new board coded is created")
-            print(s)
-        if command == "auth":
+        elif command == "auth":
             s = AuthCodec(args[0], args[1]).auth_encode()
-            # s = "authenticate,12345".encode("utf-8")
         elif command == "list":
             s = ListBoardCodec().list_board_encode()
         elif command == "open":
@@ -45,6 +41,8 @@ class MonopolyClient:
             s = CommandCodec(args[0], args[1:]).command_encode()
         elif command == "ready":
             s = ReadyBoardCodec(args[0]).ready_board_encode()
+        else:
+            return
         self.sock.send(s)
 
     def listen(self):

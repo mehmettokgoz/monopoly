@@ -7,7 +7,7 @@ import os
 from game.Board import Board
 from game.User import User
 
-from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, CloseBoardCodec, CommandCodec, ReadyBoardCodec
+from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, CloseBoardCodec, CommandCodec, ReadyBoardCodec, ListBoardCodec
 
 
 # TODO: This variable should be thread-safe
@@ -72,9 +72,10 @@ class Agent:
                 s = NewBoardCodec().new_board_decode(req)
                 board = Board(os.path.abspath(s.path))
                 boards[s.name] = board
-                self.sock.send("New board is created!".encode())
+                self.log(f"New board with name {s.name} is created!")
             elif opcode == "list":
-                pass
+                s = ListBoardCodec().list_board_decode(req)
+                self.log(",".join(boards.keys()))
             elif opcode == "close":
                 s = CloseBoardCodec().close_board_decode(req)
                 boards[s.name].detach(self.user)
@@ -84,7 +85,7 @@ class Agent:
             elif opcode == "ready":
                 s = ReadyBoardCodec().ready_board_decode(req)
                 boards[s.name].ready(self.user)
-            
+
             req = self.sock.recv(1024)
 
     def send_logs(self):

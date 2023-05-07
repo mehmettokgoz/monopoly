@@ -55,14 +55,15 @@ class NewBoardCodec(Codec):
 
 class ListBoardCodec(Codec):
 
+    boards = []
     def __init__(self):
         super().__init__()
 
     def list_board_encode(self):
-        pass
+        return "list".encode("utf-8")
 
-    def list_board_decode(self):
-        pass
+    def list_board_decode(self, req):
+        return self
 
 
 class OpenBoardCodec(Codec):

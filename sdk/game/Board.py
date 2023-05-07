@@ -347,6 +347,7 @@ class Board:
             if self.status[user.username] is False:
                 self.log("All users should marked as ready.")
                 return
+        self.log("Game is started!")
         # main game loop
         # Make this thread
         t = Thread(target=self.game_loop)
