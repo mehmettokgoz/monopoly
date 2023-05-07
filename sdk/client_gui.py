@@ -80,8 +80,10 @@ class GUI:
             client.c.wait()
             print("Condition variable is notified! New log is arrived from server.")
             for log in client.logs:
-                print(log)
-                self.list_box.insert("end", log)
+                for log_item in log.decode().split("\n"):
+                    print("log:", log_item)
+                    if log_item != "":
+                        self.list_box.insert("end", log_item.strip("\n").encode())
             client.logs = []
             i += 1
             client.c.release()

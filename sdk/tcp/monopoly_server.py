@@ -82,7 +82,6 @@ class Agent:
                 s = OpenBoardCodec().open_board_decode(req)
                 boards[s.name].attach(self.user, self.log, self.turncb)
             elif opcode == "ready":
-                # TODO : Think about the ready function in Board.py
                 s = ReadyBoardCodec().ready_board_decode(req)
                 boards[s.name].ready(self.user)
             

@@ -155,6 +155,7 @@ class Board:
         if self.user_amounts[user.username] >= cell["price"]:
             cell["owner"] = user.username
             self.user_amounts[user.username] -= cell["price"]
+            self.log(f"{user.username} bought the property.\n")
         else:
             self.log(f"{user.username} does not have required amount of money to buy.\n")
 
@@ -177,9 +178,6 @@ class Board:
             self.user_positions[user.username] = (self.user_positions[user.username] + 1) % len(self.cells)
             if self.cells[self.user_positions[user.username]]["type"] == "jail":
                 self.log(f"{user.username} is gone to the jail.\n")
-                if self.jail_free_cards[user.username] != 0:
-                    self.run_available(False)
-                    break
                 break
 
     def jail_free(self, user, answer):
