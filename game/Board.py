@@ -136,7 +136,15 @@ class Board:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
 
-            self.log(f"{user.username} is teleported to {self.cells[self.user_positions[user.username]]["type"]}\n")
+            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
+            
+            log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
+            if self.cells[self.user_positions[user.username]]['type'] == "property":
+                log_string += f", name={self.cells[self.user_positions[user.username]]['name']}, owner={self.cells[self.user_positions[user.username]]['owner']}]\n"
+            else:
+                log_string += "]\n"
+            self.log(log_string)
+
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
                 self.run_available(False)

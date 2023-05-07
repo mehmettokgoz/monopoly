@@ -43,7 +43,7 @@ class Agent:
 
     def authenticate(self, s):
         # Use this function and validate the user
-        if users_db[s.name] == s.password:
+        if s.name in users_db.keys() and users_db[s.name] == s.password:
             self.is_auth = True
             self.user = User(s.name, s.name, s.name, s.password)
             self.log(f"Login successful, welcome {s.name}!")
@@ -158,9 +158,9 @@ class Agent:
         self.curr_move = None
         if move == "teleport" or move == "pick":
             board.turn(self.user, move, self.curr_args[0])
-        elif self.curr_move == "jail-free":
+        elif move == "jail-free":
             board.turn(self.user, move, "y")
-        elif self.curr_move == "not":
+        elif move == "not":
             return
         else:
             board.turn(self.user, move)

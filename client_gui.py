@@ -65,7 +65,7 @@ class GUI:
 
         self.scroll_bar = tk.Scrollbar(self.up_frame, orient="vertical")
         self.list_box = tk.Listbox(self.up_frame, width=60, height=20,
-                                   yscrollcommand=self.scroll_bar.set, fg='#fff')
+                                   yscrollcommand=self.scroll_bar.set, fg='white', bg='black')
         self.scroll_bar.config(command=self.list_box.yview)
         self.list_box.config(yscrollcommand=self.scroll_bar.set)
         self.listbox_insert(
