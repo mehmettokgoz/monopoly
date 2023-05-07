@@ -1,5 +1,6 @@
 import json
 import random
+import threading
 from threading import Thread, Lock, Condition
 
 
@@ -7,7 +8,7 @@ class Board:
     users = []
     json = None
     status = {}
-    callbacks = []
+    callbacks = {}
     turncbs = {}
     cells = None
     chances = None
@@ -24,9 +25,12 @@ class Board:
     chance_card_types = []
     jail_free_cards = {}
     curr_chance_card = None
+    is_started = False
 
     def __init__(self, file_path):
+        self.is_started = False
         self.users = []
+        self.callbacks = {}
         self.json = json.loads(open(file_path, "r").read())
         self.cells = self.json["cells"]
         for cell in self.cells:
@@ -45,19 +49,35 @@ class Board:
         self.user_positions = {}
 
     def attach(self, user, callback, turncb):
-        self.users.append(user)
-        self.callbacks.append(callback)
-        self.turncbs[user.username] = turncb
-        self.status[user.username] = False
-        self.log(user.username + " is attached to the board.")
+        if not self.is_started:
+            print(self.users)
+            for a in self.users:
+                print(a.username)
+            self.users.append(user)
+            self.callbacks[user.username] = callback
+            self.turncbs[user.username] = turncb
+            self.status[user.username] = False
+            print("Now attaching: ",threading.current_thread().ident)
+            self.log(user.username + " is attached to the board.")
+            print(self.users)
+            for a in self.users:
+                print(a.username)
+        else:
+            callback("The game is started, you can not join as player.")
+
+    def watch(self, user, callback):
+        self.callbacks[user.username] = callback
+
+    def unwatch(self, user):
+        self.callbacks.pop(user.username)
 
     def detach(self, user):
         if self.is_user_present(user.username):
             self.users.remove(user)
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
+            self.callbacks.pop(user.username)
             self.log(user.username + " is detached from the board.")
-
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -99,7 +119,8 @@ class Board:
         # if cell type is not jail or start, then to have the same user continue the function calls run_available(False) is called
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
-        self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(self.cells)
+        self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
+            self.cells)
         self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
@@ -114,7 +135,7 @@ class Board:
         if self.user_amounts[user.username] > self.teleport_cost:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
-            
+
             self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
@@ -140,14 +161,13 @@ class Board:
             self.log(f"{user.username} get out of jail.\n")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
-            self.print_dice(user, dice_one+dice_two)
+            self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
             self.log(f"{user.username} still stays in jail.\n")
         if self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
-
 
     def buy_property(self, user, cell):
         # implements buying a property. 
@@ -186,12 +206,12 @@ class Board:
             return
         if self.jail_free_cards[user.username] > 0:
             self.jail_free_cards[user.username] -= 1
-            
+
         dice_one = random.randint(1, 6)
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one+dice_two)
+        self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 
@@ -205,7 +225,8 @@ class Board:
         if self.user_amounts[user.username] > dynamic_tax_cost:
             prev_amount = self.user_amounts[user.username]
             self.user_amounts[user.username] -= dynamic_tax_cost
-            self.log(f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
+            self.log(
+                f"{user.username} paid ${dynamic_tax_cost} the tax. good citizen. [prev: {prev_amount}, curr: {self.user_amounts[user.username]}]\n")
         else:
             self.log(f"{user.username} is eliminated from the game. cannot pay the tax.\n")
             self.users.remove(user)
@@ -219,7 +240,8 @@ class Board:
             prev_owner = self.user_amounts[cell["owner"]]
             self.user_amounts[user.username] -= cell["rents"][cell["level"] - 1]
             self.user_amounts[cell["owner"]] += cell["rents"][cell["level"] - 1]
-            self.log(f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]} tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]\n")
+            self.log(
+                f"{user.username} paid the rent ${cell['rents'][cell['level'] - 1]} tenant=[prev: {prev_amount}, curr: {self.user_amounts[user.username]}] owner=[prev: {prev_owner}, curr: {self.user_amounts[cell['owner']]}]\n")
         else:
             self.users.remove(user)
             self.log(f"{user.username} is eliminated from the game. cannot pay the rent.\n")
@@ -326,7 +348,7 @@ class Board:
         while True:
             user = self.users[self.curr_user]
             log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
-            if self.cells[self.user_positions[user.username]]['type']=="property":
+            if self.cells[self.user_positions[user.username]]['type'] == "property":
                 log_string += f", [name={self.cells[self.user_positions[user.username]]['name']}]\n"
             else:
                 log_string += "]\n"
@@ -342,12 +364,13 @@ class Board:
 
     def start_game(self):
         # check if every user ready.
-        
+
         for user in self.users:
             if self.status[user.username] is False:
                 self.log("All users should marked as ready.")
                 return
         self.log("Game is started!")
+        self.is_started = True
         # main game loop
         # Make this thread
         t = Thread(target=self.game_loop)
@@ -376,5 +399,7 @@ class Board:
         return users
 
     def log(self, message):
-        for cb in self.callbacks:
-            cb(message)
+        print("LOG SEND STAGE")
+        print(self.callbacks)
+        for a in self.users:
+            self.callbacks[a.username](message)

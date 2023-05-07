@@ -168,3 +168,35 @@ class CommandCodec(Codec):
         if len(req) > 2:
             self.args = req[2]
         return self
+
+
+class WatchBoardCodec(Codec):
+
+    def __init__(self, name = ""):
+        self.name = name
+        super().__init__()
+
+    def watch_board_encode(self):
+        return ("watch," + self.name).encode("utf-8")
+
+    def watch_board_decode(self, req):
+        req = req.decode()
+        req = req.split(',')
+        self.name = req[1]
+        return self
+
+
+class UnwatchBoardCodec(Codec):
+
+    def __init__(self, name = ""):
+        self.name = name
+        super().__init__()
+
+    def unwatch_board_encode(self):
+        return ("unwatch," + self.name).encode("utf-8")
+
+    def unwatch_board_decode(self, req):
+        req = req.decode()
+        req = req.split(',')
+        self.name = req[1]
+        return self

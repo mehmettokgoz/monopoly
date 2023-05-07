@@ -1,22 +1,23 @@
 import socket
+import threading
 import time
 from socket import socket, AF_INET, SOCK_STREAM
-from threading import Thread, Lock, Condition
+from threading import Thread, Lock, Condition, RLock
 import os
 
 from game.Board import Board
 from game.User import User
 
-from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, CloseBoardCodec, CommandCodec, ReadyBoardCodec, ListBoardCodec
-
+from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, \
+    CloseBoardCodec, CommandCodec, ReadyBoardCodec, ListBoardCodec, WatchBoardCodec, UnwatchBoardCodec
 
 # TODO: This variable should be thread-safe
 boards = {}
-users = {}
-users_database = {
+users_db = {
     "mehmet": "tokgoz",
     "fazli": "balkan"
 }
+
 
 class Agent:
     sock: socket = None
@@ -36,19 +37,17 @@ class Agent:
 
     def authenticate(self, s):
         # Use this function and validate the user
-        if users_database[s.name] == s.password:
+        if users_db[s.name] == s.password:
             self.is_auth = True
             self.user = User(s.name, s.name, s.name, s.password)
-            self.log("authentication is successful!")
+            self.log(f"Login successful, welcome {s.name}!")
         else:
-            self.log("authentication failed!")
+            self.log("Login failed, please check your username or password!")
 
     def listen_reqs(self):
         print(f"[{self.peer}] listener thread has started.")
         req = self.sock.recv(1024)
         while req and req != b'':
-            print(req)
-            print(type(req))
             opcode = decode_opcode(req)
             if opcode == "authenticate":
                 s = AuthCodec().auth_decode(req)
@@ -56,7 +55,7 @@ class Agent:
             elif not self.is_auth:
                 self.sock.send("Please authenticate using your password.".encode())
             elif opcode == "command":
-                # A new game command is recieved
+                # A new game command is received
                 # Save choice to curr_move
                 # Call notify on c
                 s = CommandCodec().command_decode(req)
@@ -67,7 +66,10 @@ class Agent:
                 self.c.release()
             elif opcode == "start":
                 s = StartGameCodec().start_game_decode(req)
-                boards[s.name].start_game()
+                if s.name in boards.keys():
+                    boards[s.name].start_game()
+                else:
+                    self.log(f"Board {s.name} is not present.")
             elif opcode == "new":
                 s = NewBoardCodec().new_board_decode(req)
                 board = Board(os.path.abspath(s.path))
@@ -78,23 +80,49 @@ class Agent:
                 self.log(",".join(boards.keys()))
             elif opcode == "close":
                 s = CloseBoardCodec().close_board_decode(req)
-                boards[s.name].detach(self.user)
+                if s.name in boards.keys():
+                    boards[s.name].detach(self.user)
+                else:
+                    self.log(f"Board {s.name} is not present.")
             elif opcode == "open":
+                print("Inside open() server: ", self.user.username, threading.current_thread().ident)
                 s = OpenBoardCodec().open_board_decode(req)
-                boards[s.name].attach(self.user, self.log, self.turncb)
+                print("open codec: ", s.name)
+                if s.name in boards.keys():
+                    boards[s.name].attach(self.user, self.log, self.turncb)
+                else:
+                    self.log(f"Board {s.name} is not present.")
             elif opcode == "ready":
                 s = ReadyBoardCodec().ready_board_decode(req)
-                boards[s.name].ready(self.user)
-
+                if s.name in boards.keys():
+                    boards[s.name].ready(self.user)
+                else:
+                    self.log(f"Board {s.name} is not present.")
+            elif opcode == "watch":
+                s = WatchBoardCodec().watch_board_decode(req)
+                if s.name in boards.keys():
+                    boards[s.name].watch(self.user, self.log)
+                else:
+                    self.log(f"Board {s.name} is not present.")
+            elif opcode == "unwatch":
+                s = UnwatchBoardCodec().unwatch_board_decode(req)
+                if s.name in boards.keys():
+                    boards[s.name].unwatch(self.user)
+                else:
+                    self.log(f"Board {s.name} is not present.")
+            elif opcode == "debug":
+                print("debug request, ", req)
+                req = req.decode().split(",")
+                self.board_status(req[1])
             req = self.sock.recv(1024)
 
-    def send_logs(self):
-        print(f"[{self.peer}] sender thread has started.")
-        while True:
-            # TODO: Wait for monitor (logs) and send to client
-            log = "This is a log message."
-            time.sleep(1)
-            self.sock.send(log.encode())
+
+    def board_status(self, name):
+        self.sock.send(("callbacks: "+", ".join(boards[name].callbacks.keys())).encode())
+        usersdas = []
+        for i in boards[name].users:
+            usersdas.append(i.username)
+        self.sock.send(("users: "+", ".join(usersdas)).encode())
 
     def turncb(self, board: Board, options):
         # Send options to client
@@ -102,50 +130,31 @@ class Agent:
         # Response is saved globally for Agent
         # Decode the response
         # Call board
-        self.log("your command options: " + str(options))
-        self.c.acquire()
-        self.c.wait()
-
+        self.log("Your command options: " + str(",".join(options)))
+        while self.curr_move is None:
+            self.c.acquire()
+            self.c.wait()
+            self.c.release()
+        move = self.curr_move
+        self.curr_move = None
         # TODO: release when it is recursive
-        if self.curr_move == "teleport" or self.curr_move == "pick":
+        if move == "teleport" or move == "pick":
             # TODO : index?
-            self.c.release()
-            board.turn(self.user, self.curr_move, self.curr_args[0])
+            board.turn(self.user, move, self.curr_args[0])
         elif self.curr_move == "jail-free":
-            self.c.release()
-            board.turn(self.user, self.curr_move, "y")
+            board.turn(self.user, move, "y")
         else:
-            self.c.release()
-            board.turn(self.user, self.curr_move)        
+            board.turn(self.user, move)
 
     def log(self, log):
         # Send log to client
+        # TODO: Should we protect socket.send()
+        print("Sending log message to ", self.user.username, threading.current_thread().ident)
         self.sock.send(log.encode())
-
-    def call_new(self):
-        board = Board(os.path.abspath("assets/input.json"))
-        print("new board instance is created.")
-        boards.append(board)
-
-    def call_list(self):
-        pass
-
-    def call_open(self, req):
-        # Register self.turncb function for user board
-        # Register self.log function for user board
-        pass
-
-    def call_close(self):
-        pass
-
-    def call_others(self):
-        pass
 
     def start_agent(self):
         self.listener = Thread(target=self.listen_reqs)
-        # self.sender = Thread(target=self.send_logs)
         self.listener.start()
-        # self.sender.start()
 
     def stop_agent(self):
         self.listener.join(1)

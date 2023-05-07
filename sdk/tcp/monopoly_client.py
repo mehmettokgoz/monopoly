@@ -2,13 +2,13 @@
 import socket
 from threading import Thread, Lock, Condition
 
-from protocol.client_message import NewBoardCodec, Command, StartGameCodec, ListBoardCodec, OpenBoardCodec, CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec
+from protocol.client_message import NewBoardCodec, Command, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
+    CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
 
 class MonopolyClient:
     sock: socket.socket = None
 
-    # TODO: Logs queue should be thread-safe
     logs = []
     m = Lock()
     c = Condition(m)
@@ -41,6 +41,13 @@ class MonopolyClient:
             s = CommandCodec(args[0], args[1:]).command_encode()
         elif command == "ready":
             s = ReadyBoardCodec(args[0]).ready_board_encode()
+        elif command == "watch":
+            s = WatchBoardCodec(args[0]).watch_board_encode()
+        elif command == "unwatch":
+            s = UnwatchBoardCodec(args[0]).unwatch_board_encode()
+        elif command == "debug":
+            self.sock.send(("debug,"+args[0]).encode())
+            return
         else:
             return
         self.sock.send(s)
@@ -54,5 +61,3 @@ class MonopolyClient:
             self.c.notify_all()
             self.c.release()
             req = self.sock.recv(1024)
-
-

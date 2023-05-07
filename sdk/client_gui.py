@@ -54,10 +54,10 @@ class GUI:
         self.up_frame.pack(expand=True, fill=BOTH)
 
         self.scroll_bar = tk.Scrollbar(self.up_frame, orient="vertical")
-        self.list_box = tk.Listbox(self.up_frame, width=50, height=20, background="gray31",
+        self.list_box = tk.Listbox(self.up_frame, width=60, height=20, background="gray31",
                                    yscrollcommand=self.scroll_bar.set, fg='#fff')
         self.scroll_bar.config(command=self.list_box.yview)
-        self.list_box.insert("end", "Welcome to Monopoly Client GUI.")
+        self.list_box.insert("end", "Welcome to Monopoly Client GUI. Use connect,PORT to command to connect a server.")
         self.scroll_bar.pack(side="right", fill="y")
         self.list_box.pack(side="left", fill="both", expand=True)
 
