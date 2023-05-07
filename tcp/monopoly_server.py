@@ -86,7 +86,7 @@ class Agent:
             elif opcode == "list":
                 with block:
                     s = ListBoardCodec().list_board_decode(req)
-                    self.log(",".join(boards.keys()))
+                    self.log(", ".join(boards.keys()))
             elif opcode == "close":
                 with block:
                     s = CloseBoardCodec().close_board_decode(req)
@@ -95,10 +95,8 @@ class Agent:
                     else:
                         self.log(f"Board {s.name} is not present.")
             elif opcode == "open":
-                print("Inside open() server: ", self.user.username, threading.current_thread().ident)
                 with block:
                     s = OpenBoardCodec().open_board_decode(req)
-                    print("open codec: ", s.name)
                     if s.name in boards.keys():
                         boards[s.name].attach(self.user, self.log, self.turncb)
                     else:
@@ -126,18 +124,17 @@ class Agent:
                         self.log(f"Board {s.name} is not present.")
             elif opcode == "debug":
                 with block:
-                    print("debug request, ", req)
                     req = req.decode().split(",")
                     self.board_status(req[1])
             req = self.sock.recv(1024)
 
 
     def board_status(self, name):
-        self.sock.send(("callbacks: "+", ".join(boards[name].callbacks.keys())).encode())
-        usersdas = []
+        self.sock.send(("Callbacks: "+", ".join(boards[name].callbacks.keys())+" ").encode())
+        usrs = []
         for i in boards[name].users:
-            usersdas.append(i.username)
-        self.sock.send(("users: "+", ".join(usersdas)).encode())
+            usrs.append(i.username)
+        self.sock.send(("Attached users: "+", ".join(usrs)).encode())
 
     def turncb(self, board: Board, options):
         # Send options to client
@@ -167,8 +164,6 @@ class Agent:
 
     def log(self, log):
         # Send log to client
-        # TODO: Should we protect socket.send()
-        print("Sending log message to ", self.user.username, threading.current_thread().ident)
         self.sock.send(log.encode())
 
     def start_agent(self):
