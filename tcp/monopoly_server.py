@@ -11,12 +11,13 @@ from game.User import User
 from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, \
     CloseBoardCodec, CommandCodec, ReadyBoardCodec, ListBoardCodec, WatchBoardCodec, UnwatchBoardCodec
 
-# TODO: This variable should be thread-safe
 boards = {}
 users_db = {
     "mehmet": "tokgoz",
     "fazli": "balkan"
 }
+
+block = Lock()
 
 
 class Agent:
@@ -67,55 +68,64 @@ class Agent:
                 self.c.notify_all()
                 self.c.release()
             elif opcode == "start":
-                s = StartGameCodec().start_game_decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].start_game()
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = StartGameCodec().start_game_decode(req)
+                    if s.name in boards.keys():
+                        boards[s.name].start_game()
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "new":
-                s = NewBoardCodec().new_board_decode(req)
-                board = Board(os.path.abspath(s.path))
-                boards[s.name] = board
-                self.log(f"New board with name {s.name} is created!")
+                with block:
+                    s = NewBoardCodec().new_board_decode(req)
+                    board = Board(os.path.abspath(s.path))
+                    boards[s.name] = board
+                    self.log(f"New board with name {s.name} is created!")
             elif opcode == "list":
-                s = ListBoardCodec().list_board_decode(req)
-                self.log(",".join(boards.keys()))
+                with block:
+                    s = ListBoardCodec().list_board_decode(req)
+                    self.log(",".join(boards.keys()))
             elif opcode == "close":
-                s = CloseBoardCodec().close_board_decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].detach(self.user)
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = CloseBoardCodec().close_board_decode(req)
+                    if s.name in boards.keys():
+                        boards[s.name].detach(self.user)
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "open":
                 print("Inside open() server: ", self.user.username, threading.current_thread().ident)
-                s = OpenBoardCodec().open_board_decode(req)
-                print("open codec: ", s.name)
-                if s.name in boards.keys():
-                    boards[s.name].attach(self.user, self.log, self.turncb)
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = OpenBoardCodec().open_board_decode(req)
+                    print("open codec: ", s.name)
+                    if s.name in boards.keys():
+                        boards[s.name].attach(self.user, self.log, self.turncb)
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "ready":
-                s = ReadyBoardCodec().ready_board_decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].ready(self.user)
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = ReadyBoardCodec().ready_board_decode(req)
+                    if s.name in boards.keys():
+                        boards[s.name].ready(self.user)
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "watch":
-                s = WatchBoardCodec().watch_board_decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].watch(self.user, self.log)
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = WatchBoardCodec().watch_board_decode(req)
+                    if s.name in boards.keys():
+                        boards[s.name].watch(self.user, self.log)
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "unwatch":
-                s = UnwatchBoardCodec().unwatch_board_decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].unwatch(self.user)
-                else:
-                    self.log(f"Board {s.name} is not present.")
+                with block:
+                    s = UnwatchBoardCodec().unwatch_board_decode(req)
+                    if s.name in boards.keys():
+                        boards[s.name].unwatch(self.user)
+                    else:
+                        self.log(f"Board {s.name} is not present.")
             elif opcode == "debug":
-                print("debug request, ", req)
-                req = req.decode().split(",")
-                self.board_status(req[1])
+                with block:
+                    print("debug request, ", req)
+                    req = req.decode().split(",")
+                    self.board_status(req[1])
             req = self.sock.recv(1024)
 
 
