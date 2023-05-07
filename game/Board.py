@@ -352,7 +352,6 @@ class Board:
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
     def game_loop(self):
-        self.log("Game is started!")
         while True:
             user = self.users[self.curr_user]
             log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
