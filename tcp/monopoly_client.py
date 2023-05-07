@@ -10,13 +10,15 @@ class MonopolyClient:
     sock: socket.socket = None
 
     logs = []
-    m = Lock()
-    c = Condition(m)
+    m = None
+    c = None
     sock: socket.socket
 
     def __init__(self, port):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect(("127.0.0.1", port))
+        self.m = Lock()
+        self.c = Condition(self.m)
         lt = Thread(target=self.listen)
         lt.start()
 

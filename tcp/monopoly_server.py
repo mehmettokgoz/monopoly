@@ -22,8 +22,8 @@ users_db = {
 class Agent:
     sock: socket = None
     peer: str
-    m = Lock()
-    c = Condition(m)
+    m = None
+    c = None
     listener: Thread
     sender: Thread
     curr_move = None
@@ -34,6 +34,8 @@ class Agent:
     def __init__(self, sock, peer):
         self.sock = sock
         self.peer = peer
+        self.m = Lock()
+        self.c = Condition(self.m)
 
     def authenticate(self, s):
         # Use this function and validate the user
