@@ -136,7 +136,7 @@ class Board:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
 
-            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
+            self.log(f"{user.username} is teleported to {self.cells[self.user_positions[user.username]]["type"]}\n")
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
             if cell["type"] != "jail":
                 self.run_available(False)
