@@ -28,7 +28,6 @@ class GUI:
 
     def handle_start(self, port):
         self.port = port
-        # TODO: This variable should be thread safe
         global client
         client = MonopolyClient(port)
         self.listbox_insert("Client is connected to server.")

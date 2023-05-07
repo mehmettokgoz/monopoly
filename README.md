@@ -1,37 +1,47 @@
-# An Online Monopoly Game Platform
+# An Online Monopoly Game Platform - Phase 2
 
 Created by @fazlibalkan (2380178) and @mehmettokgoz (2528784).
 
-PHASE 2
+## Project structure
 
-folders:
-cli -> includes the demo application used in phase 1
-game -> includes the classes created in phase 1 with minor changes.
-protocol -> includes the necessary classes for converiton of requests to meaningful objects
-tcp -> includes the client and server related files.
+| Folder   | Purpose                                                                      |
+|----------|------------------------------------------------------------------------------|
+| cli      | Includes the demo application used in Phase 1                                |
+| game     | Includes the game logic implemented in Phase 1 with minor changes.           |
+| protocol | Includes the necessary classes for serialization/deserialization of messages |
+| tcp      | Includes the client and server implementations.                              |
 
-server.py is the main server code.
-client.py is the main client code.
-client_gui.py is the file for creating gui applications for each client.
+> We implemented the client and server as classes inside the tcp folder. This allowed us to separate the client interface
+> from the actual client implementation and use different kind of application interfaces such as CLI and GUI.
 
-Our phase 2 can be tested as below:
+## Demo files
+server.py is CLI interface for server implementation. \
+client.py is CLI interface for client implementation. \
+client_gui.py is the GUI for client implementation.
 
-"python3 server.py --port PORT_NUM" for starting the server.
-in the server, run the commands respectively -> "create", "start"
+> Although we provide a CLI demo for client, we implemented the full functions only for GUI and we want to
+> make our demo using GUI application.
 
-"python3 client_gui.py" for starting the client gui applications.
-you can run this command to create any number of clients you want.
+## Gameplay
 
-in clients, run these commands:
-"connect PORT_NUM" same port number as server
-"auth,username,password" usernames and passwords can be found in the monopoly_server.py file as users_db dict
-"new,BOARD_NAME,BOARD_PATH" for creating a board
-"open,BOARD_NAME" for attaching a board
-"close,BOARD_NAME" for detaching from a board
-"ready,BOARD_NAME" for changing the user's state to ready
-"start,BOARD_NAME" for starting the game
-"list" for printing the names of the boards
+The implementation can be tested as below:
 
-after starting the game for a board, you should choose your command from the provided list in the interface and enter your command as:
-"command,COMMAND,ARG_IF_NEEDED"
+1. `python3 server.py --port PORT` for starting the server. It will start a CMD application and you should enter `create` and `start` commands.
+2. `python3 client_gui.py` for starting the client GUI applications.
+You can run this command to create any number of clients you want.
+
+Using the client application, you can run following commands:
+
+| Command                     | Explanation                                                                                              |
+|-----------------------------|----------------------------------------------------------------------------------------------------------|
+| `connect,PORT_NUM`          | Connect the client server. You must use same port number as server.                                      |
+| `auth,username,password`    | Log in the user. The login credentials can be found in the `monopoly_server.py` file as `users_db` dict. |
+| `new,BOARD_NAME,BOARD_PATH` | Creates a board instance in the server                                                                   |
+| `list`                      | Prints the names of boards.                                                                              |
+| `open,BOARD_NAME`           | Attaches the current logged-in user to a board                                                           |
+| `close,BOARD_NAME`          | Detaches the current logged-in user from a board                                                         |
+| `ready,BOARD_NAME`          | Changes the current logged-in user's state to ready                                                      |
+| `start,BOARD_NAME`          | Starts the game.                                                                                         |                                                                           |
+| `command,GAME_COMMAND,ARGS` | Sends the given game command with args after game starts.                                                |
+
 
