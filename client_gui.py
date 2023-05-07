@@ -1,5 +1,3 @@
-import sys
-import time
 import tkinter as tk
 from threading import Thread
 
@@ -16,11 +14,15 @@ class GUI:
     below_frame: Frame
     scroll_bar: Scrollbar
     list_box: Listbox
+    button: Button
+    label: Label
     entry: Entry
     client_connected = False
     port = 0
+    item_num = 0
 
     def __init__(self, master):
+        self.item_num = 0
         self.master = master
         self.update_window()
 
@@ -29,10 +31,18 @@ class GUI:
         # TODO: This variable should be thread safe
         global client
         client = MonopolyClient(port)
-        self.list_box.insert("end", "Client is connected to server.")
+        self.listbox_insert("Client is connected to server.")
         self.client_connected = True
         t = Thread(target=self.add_new_log)
         t.start()
+
+    def listbox_insert(self, p):
+        self.list_box.insert("end", p)
+        self.list_box.select_clear(self.list_box.size() - 2)
+        self.list_box.select_set(END)
+        self.list_box.yview(END)
+
+        self.item_num += 1
 
     def show_entry_fields(self):
         i = self.entry.get()
@@ -49,32 +59,34 @@ class GUI:
         self.show_entry_fields()
 
     def update_window(self):
-        self.up_frame = Frame(self.master, background="red")
+        self.up_frame = Frame(self.master, background="gray20")
 
         self.up_frame.pack(expand=True, fill=BOTH)
 
         self.scroll_bar = tk.Scrollbar(self.up_frame, orient="vertical")
-        self.list_box = tk.Listbox(self.up_frame, width=60, height=20, background="gray31",
+        self.list_box = tk.Listbox(self.up_frame, width=60, height=20,
                                    yscrollcommand=self.scroll_bar.set, fg='#fff')
         self.scroll_bar.config(command=self.list_box.yview)
-        self.list_box.insert("end", "Welcome to Monopoly Client GUI. Use connect,PORT to command to connect a server.")
+        self.list_box.config(yscrollcommand=self.scroll_bar.set)
+        self.listbox_insert(
+            "Welcome to Monopoly client GUI. Use 'connect,PORT' command to connect the server.")
         self.scroll_bar.pack(side="right", fill="y")
         self.list_box.pack(side="left", fill="both", expand=True)
 
-        self.below_frame = Frame(self.master, background="black")
-        tk.Label(self.below_frame, text="command: ", background="black", fg='#fff').grid(row=0, column=0)
-        self.entry = tk.Entry(self.below_frame, background="black", fg='#fff')
-        self.entry.grid(row=0, column=1)
+        self.below_frame = Frame(self.master)
+
+        self.entry = tk.Entry(self.below_frame, background="white", fg='black')
+        self.entry.pack(side=LEFT, expand=True, fill=X)
         self.entry.bind('<Return>', self.handle_enter)
-        tk.Button(self.below_frame, text='send', background="black", command=self.show_entry_fields, fg='#fff').grid(row=0,
-                                                                                                          column=2,
-                                                                                                          stick=tk.W,
-                                                                                                          pady=3)
-        self.below_frame.pack(expand=False, fill=X)
+
+        self.button = tk.Button(self.below_frame, text='SEND', command=self.show_entry_fields,
+                                bg='white', fg='black', pady=3, padx=3)
+        self.button.pack(side=LEFT)
+        self.below_frame.pack(expand=False, fill=X, padx=5, pady=5)
 
     def add_new_log(self):
         i = 0
-        self.list_box.insert("end", f"Client is listening localhost:{self.port}")
+        self.listbox_insert(f"Client is listening localhost:{self.port}")
         while True:
             client.c.acquire()
             client.c.wait()
@@ -83,7 +95,7 @@ class GUI:
                 for log_item in log.decode().split("\n"):
                     print("log:", log_item)
                     if log_item != "":
-                        self.list_box.insert("end", log_item.strip("\n").encode())
+                        self.listbox_insert(log_item.strip("\n").encode())
             client.logs = []
             i += 1
             client.c.release()
@@ -93,3 +105,4 @@ if __name__ == "__main__":
     root = Tk()
     window = GUI(root)
     root.mainloop()
+
