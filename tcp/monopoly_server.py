@@ -145,19 +145,23 @@ class Agent:
         # Response is saved globally for Agent
         # Decode the response
         # Call board
-        self.log("Your command options: " + str(",".join(options)))
+        if "buy" in options or "upgrade" in options:
+            options.append("not")
+            self.log("Your command options: " + str(",".join(options)))
+        else:
+            self.log("Your command options: " + str(",".join(options)))
         while self.curr_move is None:
             self.c.acquire()
             self.c.wait()
             self.c.release()
         move = self.curr_move
         self.curr_move = None
-        # TODO: release when it is recursive
         if move == "teleport" or move == "pick":
-            # TODO : index?
             board.turn(self.user, move, self.curr_args[0])
         elif self.curr_move == "jail-free":
             board.turn(self.user, move, "y")
+        elif self.curr_move == "not":
+            return
         else:
             board.turn(self.user, move)
 
