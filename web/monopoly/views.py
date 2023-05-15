@@ -1,7 +1,8 @@
+import datetime
 import random
 
-from django.template import loader
 from django.shortcuts import render
+from django.template import loader
 from django.http import HttpResponse
 
 
@@ -23,8 +24,13 @@ def index(request):
     for c in range(len(cells)):
         cells[c]["location"] = cell_svg_locations[c]
         cells[c]["text_location"] = cell_text_locations[c]
+
+    options = [
+        {"text:"},
+    ]
     context = {
         "cells": cells,
+        "options": options,
         "size": size,
         "base": base,
         "width": size * base,
@@ -37,3 +43,9 @@ def index(request):
     print(cell_svg_locations)
     template = loader.get_template("monopoly/index.html")
     return HttpResponse(template.render(context, request))
+
+
+def list_boards(request):
+    # TODO: Pull list data here from server
+    context = {}
+    return render(request, "monopoly/list.html", context)
