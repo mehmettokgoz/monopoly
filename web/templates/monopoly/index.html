@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Monopoly Board</h1>
+    <p>Board Size: {{ size }}x{{size}}</p>
+    <p></p>
+    <svg width={{width}} height={{height}}>
+        {% for cell in cells %}
+            <g>
+                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill={{cell.color}} />
+                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">CARD_NAME {{cell.text}}</text>
+            </g>
+        {% endfor %}
+    </svg>
+</body>
+</html>
