@@ -6,13 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title></title>
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="icon" href="images/favicon.png" />
   </head>
 
   <body>
-    <h1>Monopoly Game</h1>
-    <h2>Join the game: <a href="/board">Board 1</a></h2>
-    <script src="js/scripts.js"></script>
+
+  <div style="display:flex; flex-direction:column;gap:20px;">
+        <div style="font-family:'Verdana'; width:{{1020}}px; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval">
+            <div style="display:flex;gap:10px;">
+                <p style="display:flex;justify-content:center;align-items:center;margin:0">username: mehmet</p>
+                <a href="/logout"><button >Logout</button></a>
+            </div>
+        </div>
+
+      <div>
+         <p>Join the game: <a href="/board">Board 1</a></p>
+      </div>
+
+  </div>
+
+
   </body>
 </html>

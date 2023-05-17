@@ -54,6 +54,7 @@ class Agent:
         print(f"[{self.peer}] listener thread has started.")
         req = self.sock.recv(1024)
         while req and req != b'':
+            # TODO: Extract token here and auth accordingly!
             opcode = decode_opcode(req)
             if opcode == "authenticate":
                 s = AuthCodec().auth_decode(req)

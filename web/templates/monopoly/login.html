@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monopoly</title>
+  </head>
+
+  <body>
+     <div style="display:flex; flex-direction:column;gap:20px;">
+        <div style="font-family:'Verdana'; width:{{width|add:'220'}}px; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            {{ message }}
+            <form method="post" action="/auth" style="display:flex;gap:20px;">
+                Username: <input type="text" name="username"/>
+                Password: <input type="password" name="password"/>
+                {% csrf_token %}
+                <input type="submit" name="Login" value="Login"/>
+            </form>
+          <p>Don't you have an account? Register from <a href="register">here.</a></p>
+        </div>
+    </div>
+  </body>
+</html>

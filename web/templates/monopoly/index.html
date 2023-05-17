@@ -1,21 +1,85 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="reset.css">
+    <title>Monopoly Game</title>
+</head>
 <body>
-    <h1>Monopoly Board</h1>
-    <svg width={{width}} height={{height}}>
-        {% for cell in cells %}
-            <g>
-                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill={{cell.color}} />
-                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">CARD_NAME {{cell.text}}</text>
-            </g>
-        {% endfor %}
-    </svg>
-    <svg width="300" height={{height}} fill="red">
-        {% for cell in cells %}
-            <g>
-                <rect x="0" y="0" width={{300}} height={{75}} fill={{cell.color}} />
-            </g>
-        {% endfor %}
-    </svg>
+    <div style="display:flex; flex-direction:column;gap:20px;">
+        <div style="font-family:'Verdana'; width:{{width|add:'220'}}px; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval">
+            <div style="display:flex;gap:10px;">
+                <p style="display:flex;justify-content:center;align-items:center;margin:0">username: mehmet</p>
+                <a href="/logout"><button >Logout</button></a>
+            </div>
+
+        </div>
+
+        <div style="display:flex; width:{{width|add:'220'}}px; gap:20px;">
+            <svg width={{width}} height={{height}} fill="#cde6d1">
+                <g>
+                    <rect x={{base}} y={{base}} width={{middle_rect_size}} height={{middle_rect_size}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                    <text x={{middle_text_loc}} y={{middle_text_loc}} transform="rotate(-45, {{middle_text_loc}}, {{middle_text_loc}})" alignment-baseline="middle" font-size="70" font-family="Verdana" stroke-width="0" stroke="#000" text-anchor="middle" fill="black">MONOPOLY</text>
+
+                </g>
+                {% for cell in cells %}
+                    {% if cell.card == "property" %}
+                        {% if cell.direction == "up" %}
+                            <g>
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY  {{cell.text}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.money}}$</text>
+                            </g>
+                        {% elif cell.direction == "right" %}
+                            <g>
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                            </g>
+                        {% elif cell.direction == "left" %}
+                            <g>
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                            </g>
+                        {% else %}
+                            <g>
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                            </g>
+                        {% endif %}
+
+                    {% elif cell.card == "station" %}
+                        <g>
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">STATION {{cell.direction}}</text>
+                        </g>
+                    {% elif cell.card == "start" %}
+                        <g>
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">START</text>
+                        </g>
+                    {% else %}
+                        <g>
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">UNKNOWN</text>
+                        </g>
+                    {% endif %}
+
+                {% endfor %}
+            </svg>
+            <div style="width:200px; height:auto;">
+
+            </div>
+        </div>
+
+    </div>
+
+
 </body>
 </html>
