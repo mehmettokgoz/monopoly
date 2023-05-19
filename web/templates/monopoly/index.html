@@ -60,11 +60,15 @@
                 {% endfor %}
             </svg>
             <div style="width:200px; height:auto; margin: auto; display: flex; flex-direction: column;">
-                <div style="border: none; padding: 16px; width: 400px; margin: 4px; margin-left: auto;">
+                <div style="padding: 8px; width: 400px; margin: 4px; margin-left: auto; display: flex; flex-direction: row;">
+                    <div style="padding: 8px;">Current selected cell: </div> 
+                    <div id="selected_cell" style="min-width: 20px; padding: 8px; background-color: aquamarine; text-align: center;"></div>
+                </div>
+                <div style="padding: 16px; width: 400px; margin: 4px; margin-left: auto;">
                     Choose one of the options below!
                 </div>
                 {% for option in options %}
-                    <div style="width: 300px; margin-left: 100px; display: flex; flex-direction: row;">
+                    <div style="width: 300px; margin-left: 20px; display: flex; flex-direction: row;">
                         <button onclick="select_option(this.id)" id={{option.name}} style="border: none; padding: 16px; width: 100px; margin: 4px; border-radius: 4px;">
                             {{option.name}}
                         </button>
@@ -78,10 +82,11 @@
 
     <script type="text/javascript">
         var selected_cell = -1;
+
         function select_cell(clicked_id)
         {
             selected_cell = clicked_id;
-            alert(clicked_id);
+            document.getElementById('selected_cell').innerHTML = selected_cell;
         }
         function select_option(option)
         {
@@ -90,13 +95,12 @@
                     alert("You need to choose a cell to execute this option!");
                 } else {
                     alert("You " + option + "ed the cell " + selected_cell);
-                    selected_cell = -1;
                 }
             } else {
                 alert("You chose the " + option + " option");
             }
-            
-            
+            selected_cell = -1;
+            document.getElementById('selected_cell').innerHTML = "";
             // todo: execute option
         }
       </script>
