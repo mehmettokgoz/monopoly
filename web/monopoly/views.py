@@ -13,7 +13,7 @@ from monopoly.client import MonopolyClient
 
 sample_board = [
     {"color": "blue", "card": "start", "text": 1, },
-    {"color": "#995237", "card": "property", "text": "1", "money": 123},
+    {"color": "#995237", "card": "property", "text": 2, "money": 123},
     {"color": "#995237", "card": "chance", "text": 3},
     {"color": "#995237", "card": "property", "text": 4},
     {"color": "blue", "card": "chance", "text": 5},
@@ -70,7 +70,12 @@ def index(request):
         cells[c]["location"] = cell_svg_locations[c]
         cells[c]["text_location"] = cell_text_locations[c]
     options = [
-        {"text:"},
+        {"name" : "dice", "input" : "no"},
+        {"name" : "buy", "input" : "no"},
+        {"name" : "upgrade", "input" : "no"},
+        {"name" : "bail", "input" : "no"},
+        {"name" : "teleport", "input" : "yes"},
+        {"name" : "pick", "input" : "yes"}
     ]
     context = {
         "cells": cells,

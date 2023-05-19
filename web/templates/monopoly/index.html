@@ -18,7 +18,7 @@
 
         </div>
 
-        <div style="display:flex; width:{{width|add:'220'}}px; gap:20px;">
+        <div style="display:flex; flex-direction: row; width:{{width|add:'220'}}px; gap:20px;">
             <svg width={{width}} height={{height}} fill="#cde6d1">
                 <g>
                     <rect x={{base}} y={{base}} width={{middle_rect_size}} height={{middle_rect_size}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
@@ -26,60 +26,80 @@
 
                 </g>
                 {% for cell in cells %}
+                    <g id={{cell.text}} onClick="select_cell(this.id)" >
                     {% if cell.card == "property" %}
                         {% if cell.direction == "up" %}
-                            <g>
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
                                 <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY  {{cell.text}}</text>
                                 <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.money}}$</text>
-                            </g>
                         {% elif cell.direction == "right" %}
-                            <g>
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
                                 <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
-                            </g>
                         {% elif cell.direction == "left" %}
-                            <g>
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
                                 <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
-                            </g>
                         {% else %}
-                            <g>
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
                                 <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
-                            </g>
                         {% endif %}
-
                     {% elif cell.card == "station" %}
-                        <g>
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
                             <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">STATION {{cell.direction}}</text>
-                        </g>
                     {% elif cell.card == "start" %}
-                        <g>
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
                             <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">START</text>
-                        </g>
                     {% else %}
-                        <g>
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                             <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">UNKNOWN</text>
-                        </g>
                     {% endif %}
-
+                    </g>
                 {% endfor %}
             </svg>
-            <div style="width:200px; height:auto;">
-
+            <div style="width:200px; height:auto; margin: auto; display: flex; flex-direction: column;">
+                <div style="border: none; padding: 16px; width: 400px; margin: 4px; margin-left: auto;">
+                    Choose one of the options below!
+                </div>
+                {% for option in options %}
+                    <div style="width: 300px; margin-left: 100px; display: flex; flex-direction: row;">
+                        <button onclick="select_option(this.id)" id={{option.name}} style="border: none; padding: 16px; width: 100px; margin: 4px; border-radius: 4px;">
+                            {{option.name}}
+                        </button>
+                    </div>
+                    
+                {% endfor %}
             </div>
         </div>
 
     </div>
 
+    <script type="text/javascript">
+        var selected_cell = -1;
+        function select_cell(clicked_id)
+        {
+            selected_cell = clicked_id;
+            alert(clicked_id);
+        }
+        function select_option(option)
+        {
+            if (option === "pick" || option === "teleport") {
+                if (selected_cell === -1) {
+                    alert("You need to choose a cell to execute this option!");
+                } else {
+                    alert("You " + option + "ed the cell " + selected_cell);
+                    selected_cell = -1;
+                }
+            } else {
+                alert("You chose the " + option + " option");
+            }
+            
+            
+            // todo: execute option
+        }
+      </script>
 
 </body>
 </html>
