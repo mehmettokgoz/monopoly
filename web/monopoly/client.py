@@ -1,8 +1,8 @@
 # Client class for Monopoly
 import socket
 
-from monopoly.protocol import NewBoardCodec, Command, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
-    CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
+from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
+    CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec, BoardStateCodec
 
 
 class MonopolyClient:
@@ -12,40 +12,35 @@ class MonopolyClient:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect(("127.0.0.1", port))
 
-    def send_command(self, c, *args):
-        command_and_args = c.split(",")
-        command = command_and_args[0]
-        args = command_and_args[1:]
+    def send_command(self, token, command, *args):
         s = None
         if command == "new":
-            s = NewBoardCodec(args[0], args[1]).new_board_encode()
+            s = NewBoardCodec(token=token, name=args[0], path=args[1]).encode()
         elif command == "auth":
-            s = AuthCodec(args[0], args[1]).auth_encode()
+            s = AuthCodec(token=token, name=args[0], password=args[1]).encode()
         elif command == "list":
-            s = ListBoardCodec().list_board_encode()
+            s = ListBoardCodec(token).encode()
         elif command == "open":
-            s = OpenBoardCodec(args[0]).open_board_encode()
+            s = OpenBoardCodec(token=token, name=args[0]).encode()
         elif command == "close":
-            s = CloseBoardCodec(args[0]).close_board_encode()
+            s = CloseBoardCodec(token=token, name=args[0]).encode()
         elif command == "start":
-            s = StartGameCodec(args[0]).start_game_encode()
+            s = StartGameCodec(token=token, name=args[0]).encode()
         elif command == "command":
-            s = CommandCodec(args[0], args[1:]).command_encode()
+            s = CommandCodec(token=token, command=args[0], args=args[1:]).encode()
         elif command == "ready":
-            s = ReadyBoardCodec(args[0]).ready_board_encode()
+            s = ReadyBoardCodec(token=token, name=args[0]).encode()
         elif command == "watch":
-            s = WatchBoardCodec(args[0]).watch_board_encode()
+            s = WatchBoardCodec(token=token, name=args[0]).encode()
         elif command == "unwatch":
-            s = UnwatchBoardCodec(args[0]).unwatch_board_encode()
-        elif command == "debug":
-            self.sock.send(("debug," + args[0]).encode())
-            return
+            s = UnwatchBoardCodec(token=token, name=args[0]).encode()
+        elif command == "state":
+            s = BoardStateCodec(token=token, name=args[0]).encode()
         else:
             return
         self.sock.send(s)
 
-        return self.sock.recv(1024)
-
+        return self.sock.recv(2048)
 
     def close(self):
         self.sock.close()

@@ -6,15 +6,20 @@ class User:
     email: str
     fullname: str
     passwd: str
+    token: str
 
     def __init__(self, username, email, fullname, passwd):
         self.username = username
         self.email = email
         self.fullname = fullname
+        self.token = "TOKEN"+username
         self.passwd = passwd  # TODO: Convert this string password to hashed version.
 
     def get(self):
         pass
+
+    def get_token(self):
+        return self.token
 
     def update(self):
         pass

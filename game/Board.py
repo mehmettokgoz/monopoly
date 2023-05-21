@@ -112,7 +112,7 @@ class Board:
 
     def get_board_state(self):
         # TODO: Generates a report for the board, properties, their level and owner
-        return self.users, self.user_positions, self.user_amounts, self.cells
+        return json.dumps([self.users, self.user_positions, self.user_amounts, self.cells])
 
     def dice(self, user):
         # implements rolling two dice and sends user to the corresponding cell.

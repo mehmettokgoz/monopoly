@@ -1,205 +1,201 @@
 # Binary Protocol Implementation for Monopoly Game
-
-"""
-OPCODE | ARGS_START | [TYPE | LEN |VALUE] | ARGS_END
-"""
-from enum import Enum
+import base64
 
 
 def decode_opcode(b):
     print(type(b))
     print(b)
-    return b.decode().split(",")[0]
+    req = b.decode().split(",")
+
+    if req[0] == "auth":
+        return "auth"
+    elif req[0].split(":")[0] == "token":
+        return req[0].split(":")[1], req[1]
+    else:
+        return "NO_TOKEN", req[0]
 
 
-def create_initial_buffer():
-    pass
+class NewBoardCodec:
 
-
-class Command(Enum):
-    NEW = 1
-    LIST = 2
-    OPEN = 3
-    CLOSE = 4
-
-
-class Codec:
-
-    def __init__(self):
-        pass
-
-    def encode_string(self, s):
-        pass
-
-    def encode_opcode(self, s):
-        pass
-
-
-class NewBoardCodec(Codec):
-
-    def __init__(self, name="", path=""):
+    def __init__(self, token="", name="", path=""):
         self.name = name
         self.path = path
-        super().__init__()
+        self.token = token
 
-    def new_board_encode(self):
-        return ("new," + self.name + "," + self.path).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",new," + self.name + "," + self.path).encode("utf-8")
 
-    def new_board_decode(self, b):
-        req = b.decode()
-        req = req.split(',')
-        self.name = req[1]
-        self.path = req[2]
+    def decode(self, b):
+        req = b.decode().split(',')
+        self.token = req[0].split(":")[1]
+        print(req)
+        self.name = req[2]
+        self.path = req[3]
         return self
 
 
-class ListBoardCodec(Codec):
-    boards = []
+class ListBoardCodec:
+    token: str
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, token: str = ""):
+        self.token = token
 
-    def list_board_encode(self):
-        return "list".encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",list").encode("utf-8")
 
-    def list_board_decode(self, req):
+    def decode(self, b):
+        req = b.decode().split(',')
+        self.token = req[0].split(":")[1]
         return self
 
 
-class OpenBoardCodec(Codec):
-    name: str
+class OpenBoardCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def open_board_encode(self):
-        return ("open," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",open," + self.name).encode("utf-8")
 
-    def open_board_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
 
 
-class CloseBoardCodec(Codec):
+class CloseBoardCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def close_board_encode(self):
-        return ("close," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",close," + self.name).encode("utf-8")
 
-    def close_board_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
 
 
-class ReadyBoardCodec(Codec):
+class ReadyBoardCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def ready_board_encode(self):
-        return ("ready," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",ready," + self.name).encode("utf-8")
 
-    def ready_board_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
 
 
-class AuthCodec(Codec):
+class AuthCodec:
     name: str
     password: str
 
-    def __init__(self, name="", password=""):
+    def __init__(self, token="", name="", password=""):
+        self.token = token
         self.name = name
         self.password = password
-        super().__init__()
 
-    def auth_encode(self):
-        return ("authenticate," + self.name + "," + self.password).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",authenticate," + self.name + "," + self.password).encode("utf-8")
 
-    def auth_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
-        self.password = req[2]
+    def decode(self, req):
+        req = req.decode().split(",")
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
+        self.password = req[3]
         return self
 
 
-class StartGameCodec(Codec):
-    name: str
+class StartGameCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def start_game_encode(self):
-        return ("start," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",start," + self.name).encode("utf-8")
 
-    def start_game_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(",")
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
 
 
-class CommandCodec(Codec):
-    command: str
-    args: list
+class CommandCodec:
 
-    def __init__(self, command="", args=[]):
+    def __init__(self, token="", command="", args=[]):
+        self.token = token
         self.command = command
         self.args = args
-        super().__init__()
 
-    def command_encode(self):
-        return ("command," + self.command + "," + ",".join([str(i) for i in self.args])).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",command," + self.command + "," + ",".join(
+            [str(i) for i in self.args])).encode("utf-8")
 
-    def command_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.command = req[1]
-        if len(req) > 2:
-            self.args = req[2]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.command = req[2]
+        if len(req) > 3:
+            self.args = req[3]
         return self
 
 
-class WatchBoardCodec(Codec):
+class WatchBoardCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def watch_board_encode(self):
-        return ("watch," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",watch," + self.name).encode("utf-8")
 
-    def watch_board_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
 
 
-class UnwatchBoardCodec(Codec):
+class UnwatchBoardCodec:
 
-    def __init__(self, name=""):
+    def __init__(self, token="", name=""):
+        self.token = token
         self.name = name
-        super().__init__()
 
-    def unwatch_board_encode(self):
-        return ("unwatch," + self.name).encode("utf-8")
+    def encode(self):
+        return ("token:" + self.token + ",unwatch," + self.name).encode("utf-8")
 
-    def unwatch_board_decode(self, req):
-        req = req.decode()
-        req = req.split(',')
-        self.name = req[1]
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
+        return self
+
+
+class BoardStateCodec:
+
+    def __init__(self, token="", name=""):
+        self.token = token
+        self.name = name
+
+    def encode(self):
+        return ("token:" + self.token + ",state," + self.name).encode("utf-8")
+
+    def decode(self, req):
+        req = req.decode().split(',')
+        self.token = req[0].split(":")[1]
+        self.name = req[2]
         return self
