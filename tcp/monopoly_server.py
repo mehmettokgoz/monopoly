@@ -37,6 +37,7 @@ class AgentBoard:
 
     def __init__(self, name, password):
         self.m = Lock()
+        self.logs = ["This is sample log."]
         self.c = Condition(self.m)
         self.user = User(name, name, name, password)
         self.token = self.user.get_token()
@@ -53,6 +54,7 @@ class AgentBoard:
             self.c.acquire()
             self.c.notify_all()
             self.c.release()
+            return self.logs[-1]
         elif opcode == "start":
             with block:
                 s = StartGameCodec().decode(req)
@@ -60,6 +62,7 @@ class AgentBoard:
                     boards[s.name].start_game()
                 else:
                     return f"Board {s.name} is not present."
+                return f"start!"
         elif opcode == "new":
             with block:
                 s = NewBoardCodec().decode(req)
@@ -80,6 +83,7 @@ class AgentBoard:
                     boards[s.name].detach(self.user)
                 else:
                     return f"Board {s.name} is not present."
+                return f"{self.user} is detached from board."
         elif opcode == "open":
             print("Inside open() server: ", self.user.username, threading.current_thread().ident)
             with block:
@@ -89,6 +93,7 @@ class AgentBoard:
                     boards[s.name].attach(self.user, self.log, self.turncb)
                 else:
                     return f"Board {s.name} is not present."
+                return f"{self.user} is attached to board."
         elif opcode == "ready":
             with block:
                 s = ReadyBoardCodec().decode(req)
@@ -96,6 +101,7 @@ class AgentBoard:
                     boards[s.name].ready(self.user)
                 else:
                     return f"Board {s.name} is not present."
+                return f"ready!"
         elif opcode == "watch":
             with block:
                 s = WatchBoardCodec().decode(req)
@@ -103,6 +109,7 @@ class AgentBoard:
                     boards[s.name].watch(self.user, self.log)
                 else:
                     return f"Board {s.name} is not present."
+                return f"watch!"
         elif opcode == "unwatch":
             with block:
                 s = UnwatchBoardCodec().decode(req)
@@ -110,6 +117,7 @@ class AgentBoard:
                     boards[s.name].unwatch(self.user)
                 else:
                     return f"Board {s.name} is not present."
+                return f"unwatch!"
         elif opcode == "state":
             with block:
                 s = BoardStateCodec().decode(req)
@@ -130,7 +138,7 @@ class AgentBoard:
         move = self.curr_move
         self.curr_move = None
         if move == "teleport" or move == "pick":
-            board.turn(self.user, move, self.curr_args[0])
+            board.turn(self.user, move, self.curr_args)
         elif move == "jail-free":
             board.turn(self.user, move, "y")
         elif move == "not":

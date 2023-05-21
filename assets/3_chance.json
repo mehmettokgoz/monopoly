@@ -20,19 +20,8 @@
       {
          "type":"chance_card"
       },
-            {
-         "type":"property",
-         "name":"2",
-         "cell":2,
-         "color":"#995237",
-         "price":120,
-         "rents":[
-            50,
-            150,
-            400,
-            600,
-            900
-         ]
+      {
+         "type":"chance_card"
       },
       {
          "type":"chance_card"
@@ -68,19 +57,8 @@
       {
          "type":"chance_card"
       },
-            {
-         "type":"property",
-         "name":"5",
-         "cell":2,
-         "color":"#aae1ff",
-         "price":120,
-         "rents":[
-            50,
-            150,
-            400,
-            600,
-            900
-         ]
+      {
+         "type":"chance_card"
       },
             {
          "type":"property",
@@ -99,20 +77,8 @@
       {
          "type":"teleport"
       },
-
-            {
-         "type":"property",
-         "name":"7",
-         "cell":2,
-         "color":"#db3a93",
-         "price":120,
-         "rents":[
-            50,
-            150,
-            400,
-            600,
-            900
-         ]
+      {
+         "type":"chance_card"
       },
       {
          "type":"property",
@@ -159,22 +125,11 @@
             900
          ]
       },
-                  {
-         "type":"property",
-         "name":"11",
-         "cell":2,
-         "color":"#ec1a24",
-         "price":120,
-         "rents":[
-            50,
-            150,
-            400,
-            600,
-            900
-         ]
+      {
+         "type":"chance_card"
       },
       {
-         "type":"tax"
+         "type":"chance_card"
       },
             {
          "type":"property",
@@ -205,21 +160,10 @@
          ]
       },
       {
-         "type":"property",
-         "name":"14",
-         "cell":11,
-         "color":"#ec1a24",
-         "price":150,
-         "rents":[
-            70,
-            180,
-            500,
-            700,
-            1000
-         ]
+         "type":"chance_card"
       },
       {
-         "type":"tax"
+         "type":"jail"
       },
        {
          "type":"property",
@@ -250,7 +194,7 @@
          ]
       },
       {
-         "type":"jail"
+         "type":"chance_card"
       },
       {
          "type":"property",
@@ -267,21 +211,10 @@
          ]
       },
       {
-         "type":"goto_jail"
+         "type":"chance_card"
       },
       {
-         "type":"property",
-         "name":"18",
-         "cell":2,
-         "color":"#0572b8",
-         "price":120,
-         "rents":[
-            50,
-            150,
-            400,
-            600,
-            900
-         ]
+         "type":"chance_card"
       }
    ],
    "upgrade":50,

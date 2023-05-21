@@ -14,8 +14,7 @@ from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-
-port = 1273
+port = 1297
 
 sample_board = [
     {"color": "blue", "card": "start", "text": 1, },
@@ -50,7 +49,6 @@ sample_board = [
 
 
 def index(request, board_name):
-    print(board_name)
     size = 8
     base = 100
 
@@ -58,13 +56,11 @@ def index(request, board_name):
     if token:
         client = MonopolyClient(port)
         response = client.send_command(token, "state", board_name)
-        print(response)
         response = json.loads(response)
-        print(response)
+
         client.close()
     else:
         return render(request, "monopoly/login.html", {'message': 'You need to log in to execute commands on board.'})
-
 
     # TODO: Pull this data from server dynamically
     cell_svg_locations = [(i * base, 0) for i in range(0, size)] + \
@@ -72,8 +68,8 @@ def index(request, board_name):
                          [(i * base, (size - 1) * base) for i in range(size - 2, -1, -1)] + \
                          [(0, i * base) for i in range(size - 2, 0, -1)]
     cell_text_locations = [(int(c[0] + base / 2), int(c[1] + base / 2)) for c in cell_svg_locations]
-    cells = sample_board
-
+    cells = response["cells"]
+    print(response)
     for i in range(size * 2 + (size - 2) * 2):
         if i == 0 or i == size - 1 or i == 2 * size - 2 or i == 3 * size - 3:
             cells[i]["direction"] = "corner"
@@ -86,23 +82,28 @@ def index(request, board_name):
         else:
             cells[i]["direction"] = "left"
     for c in range(len(cells)):
+        cells[c]["index"] = c
         cells[c]["location"] = cell_svg_locations[c]
         cells[c]["text_location"] = cell_text_locations[c]
-    options = [
-        {"name": "dice", "input": "no"},
-        {"name": "buy", "input": "no"},
-        {"name": "upgrade", "input": "no"},
-        {"name": "bail", "input": "no"},
-        {"name": "teleport", "input": "yes"},
-        {"name": "pick", "input": "yes"}
-    ]
+
+    for user_index in response["user_positions"].keys():
+        response["user_positions"][user_index] = cells[response["user_positions"][user_index]]["text_location"]
+
+    global curr_chance_card
+    curr_chance_card = response["curr_chance_card"]
+
     context = {
         "username": request.COOKIES.get("username"),
         "name": board_name,
+        "users": response["users"],
+        "current_user": response["current_user"],
+        "curr_chance_card": response["curr_chance_card"],
+        "options": response["options"],
+        "user_positions": response["user_positions"],
         "cells": cells,
-        "options": options,
         "size": size,
         "base": base,
+        "game_over": response["game_over"],
         "middle_rect_size": (size - 2) * base,
         "middle_text_loc": base + (size - 2) * base / 2,
         "width": size * base,
@@ -112,7 +113,7 @@ def index(request, board_name):
         "curr_height": base / 2,
         "locations": cell_svg_locations
     }
-    print(cell_svg_locations)
+
     template = loader.get_template("monopoly/index.html")
     return HttpResponse(template.render(context, request))
 
@@ -120,20 +121,19 @@ def index(request, board_name):
 def list_boards(request):
     # TODO: Pull list data here from server
     context = {}
-    print(request.COOKIES)
     token = request.COOKIES.get('token')
-    print("token:", token)
     client = MonopolyClient(port)
     if token is not None:
         response = client.send_command(token, "list")
-        print(response)
         client.close()
         response = response.decode().split(",")
-        print(response)
         if len(response) <= 0:
-            return render(request, "monopoly/list.html", {"username": request.COOKIES.get("username"), 'message': 'No board is available.', "boards": []})
+            return render(request, "monopoly/list.html",
+                          {"username": request.COOKIES.get("username"), 'message': 'No board is available.',
+                           "boards": []})
         else:
-            return render(request, "monopoly/list.html", {"username": request.COOKIES.get("username"),  'message': "", "boards": response})
+            return render(request, "monopoly/list.html",
+                          {"username": request.COOKIES.get("username"), 'message': "", "boards": response})
     else:
         return HttpResponseRedirect("/login")
 
@@ -144,12 +144,11 @@ def execute_command(request, board_name):
     selected_cell = request.POST["selected_cell"]
     token = request.COOKIES.get('token')
     if token:
-
         client = MonopolyClient(port)
         # TODO: Send related command by taking from request.
-        print("sending dice command")
-        print(option)
+        print(selected_cell)
         response = client.send_command(token, "command", option, selected_cell)
+        print(response)
         client.close()
         # TODO: Redirect connection to board page.
         return HttpResponseRedirect(f'/board/{board_name}')
@@ -165,12 +164,12 @@ def login_view(request):
 def login_post(request):
     username = request.POST['username']
     password = request.POST['password']
-    print(username, password)
+
 
     # test if user is not disabled by admin
     client = MonopolyClient(port)
     response = client.send_command("NO_TOKEN_REQUIRED", "auth", username, password)
-    print("response", response)
+
     token_response = response.decode()
     if len(token_response) > 20:
         return render(request, 'monopoly/login.html', {'message': token_response})
@@ -193,18 +192,69 @@ def logout(request):
 def new_board(request):
     board_json = request.POST['json_board']
     name = request.POST['name']
-    print(name, board_json)
+
 
     # TODO: Pull list data here from server
     context = {}
-    print(request.COOKIES)
+
     token = request.COOKIES.get('token')
-    print("token:", token)
     client = MonopolyClient(port)
     if token is not None:
         response = client.send_command(token, "new", name, board_json)
         client.close()
-        print(response)
+
         return HttpResponseRedirect("/")
+    else:
+        return HttpResponseRedirect("/login")
+
+
+def ready(request, board_name):
+    # TODO: Pull list data here from server
+    context = {}
+    token = request.COOKIES.get('token')
+    client = MonopolyClient(port)
+    if token is not None:
+        response = client.send_command(token, "ready", board_name)
+        client.close()
+        return HttpResponseRedirect(f"/board/{board_name}")
+    else:
+        return HttpResponseRedirect("/login")
+
+
+def attach(request, board_name):
+    # TODO: Pull list data here from server
+    context = {}
+    token = request.COOKIES.get('token')
+    client = MonopolyClient(port)
+
+    if token is not None:
+        response = client.send_command(token, "open", board_name)
+        client.close()
+        return HttpResponseRedirect(f"/board/{board_name}")
+    else:
+        return HttpResponseRedirect("/login")
+
+
+def detach(request, board_name):
+    # TODO: Pull list data here from server
+    context = {}
+    token = request.COOKIES.get('token')
+    client = MonopolyClient(port)
+    if token is not None:
+        response = client.send_command(token, "close", board_name)
+        client.close()
+        return HttpResponseRedirect(f"/board/{board_name}")
+    else:
+        return HttpResponseRedirect("/login")
+
+
+def start(request, board_name):
+    context = {}
+    token = request.COOKIES.get('token')
+    client = MonopolyClient(port)
+    if token is not None:
+        response = client.send_command(token, "start", board_name)
+        client.close()
+        return HttpResponseRedirect(f"/board/{board_name}")
     else:
         return HttpResponseRedirect("/login")

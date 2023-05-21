@@ -12,10 +12,9 @@
         <div style="font-family:'Verdana'; width:{{width|add:'220'}}px; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
             <a href="/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
             <div style="display:flex;gap:10px;">
-                <p style="display:flex;justify-content:center;align-items:center;margin:0">username: {{username}}</p>
+                <div style="display:flex;justify-content:center;align-items:center;margin:0">username: <h1 id="username">{{username}}</h1> </div>
                 <a href="/logout"><button >Logout</button></a>
             </div>
-
         </div>
 
         <div style="display:flex; flex-direction: row; width:{{width|add:'220'}}px; gap:20px;">
@@ -23,66 +22,120 @@
                 <g>
                     <rect x={{base}} y={{base}} width={{middle_rect_size}} height={{middle_rect_size}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                     <text x={{middle_text_loc}} y={{middle_text_loc}} transform="rotate(-45, {{middle_text_loc}}, {{middle_text_loc}})" alignment-baseline="middle" font-size="70" font-family="Verdana" stroke-width="0" stroke="#000" text-anchor="middle" fill="black">MONOPOLY</text>
-
                 </g>
                 {% for cell in cells %}
-                    <g id={{cell.text}} onClick="select_cell(this.id)" >
-                    {% if cell.card == "property" %}
+                    <g id={{cell.index}} onClick="select_cell(this.id)" >
+                    {% if cell.type == "property" %}
                         {% if cell.direction == "up" %}
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY  {{cell.text}}</text>
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.money}}$</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">{{cell.name}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"10"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.price}}$</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.owner}}</text>
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">Level {{cell.level}}</text>
                         {% elif cell.direction == "right" %}
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">{{cell.name}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"10"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.price}}$</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.owner}}</text>
+                                                        <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">Level {{cell.level}}</text>
                         {% elif cell.direction == "left" %}
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">{{cell.name}}</text>
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"10"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.price}}$</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.owner}}</text>
+                                                        <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">Level {{cell.level}}</text>
                         {% else %}
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                                 <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">PROPERTY {{cell.text}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">{{cell.name}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"10"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.price}}$</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">{{cell.owner}}</text>
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1|add:"30"}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000"  font-family="Verdana" fill="black">Level: {{cell.level}}</text>
                         {% endif %}
-                    {% elif cell.card == "station" %}
+                    {% elif cell.type == "station" %}
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
                             <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">STATION {{cell.direction}}</text>
-                    {% elif cell.card == "start" %}
+                    {% elif cell.type == "start" %}
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
                             <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">START</text>
                     {% else %}
                             <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">UNKNOWN</text>
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Verdana" fill="black">{{cell.type}}</text>
                     {% endif %}
                     </g>
+                {% endfor %}
+                {% for key, values in user_positions.items %}
+                <g>
+                    <circle cx={{values.0}} cy={{values.1}} r="15" stroke="black" stroke-width="3" fill="gray"/>
+                    <text x={{values.0}} y={{values.1}} text-anchor="middle"  stroke-width="2px" dy=".3em">{{key.0}}</text>
+                </g>
+
                 {% endfor %}
             </svg>
             <div style="width:200px; height:auto; margin: auto; display: flex; flex-direction: column;">
 
-                <form action="/">
-                    <input type="submit" formaction="/join" value="ready">
-                    <input type="submit" formaction="/join" value="detach">
-                    <input type="submit" formaction="/join" value="attach">
-                </form>
-
-                <div style="padding: 8px; width: 400px; margin: 4px; margin-left: auto; display: flex; flex-direction: row;">
-                    <div style="padding: 8px;">Current selected cell: </div> 
-                    <div id="selected_cell" style="min-width: 20px; padding: 8px; background-color: aquamarine; text-align: center;"></div>
+                <div>
+                    {% if game_over != "" %}
+                        <h2>Winner: {{game_over}}</h2>
+                    {% endif %}
+                    <div>
+                        Current user: <h2 id="current_user">{{current_user}}</h2>
+                    </div>
+                    <h2>Options:</h2>
+                    {% for opt in options %}
+                        <p>{{opt}}</p>
+                    {% endfor %}
+                    <h2>Attached Users:</h2>
+                    {% for user in users %}
+                        <h3>Username: {{user.username}} {{user.money}}</h3>
+                    {% endfor %}
                 </div>
-                <div style="padding: 16px; width: 400px; margin: 4px; margin-left: auto;">
+                    {% if curr_chance_card != "" %}
+                    <div>Chance Card: <h2 id="curr_chance_card">
+
+                            {{curr_chance_card}}
+
+                    </h2></div>
+                    {% endif %}
+
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <form action="/">
+                        <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/ready/{{name}}" value="Ready">
+                    </form>
+                    <form>
+                        <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/detach/{{name}}" value="Detach">
+                    </form>
+
+                    <form>
+                        <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/attach/{{name}}" value="Attach">
+                    </form>
+
+                    <form>
+                        <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/start/{{name}}" value="Start">
+                    </form>
+                </div>
+
+
+                {% if current_user == username %}
+
+
+                <div style="padding: 16px; margin: 4px; margin-left: auto;">
                     Choose one of the options below!
                 </div>
-
-                <form method="post" action="/command/{{name}}" >
-                    <input type="text" name="selected_cell" id="cell">
-                    {% for option in options %}
-                        <input type="submit" name="option" value={{option.name}} id={{option.name}} >
-                    {% endfor %}
-                    {% csrf_token %}
-                </form>
-
+                <div style="padding: 8px;">Current selected cell: </div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <form method="post" action="/command/{{name}}" >
+                        <input type="text" style="width:90%; padding: 8px; margin-bottom:10px;border-radius:10px;background-color: aquamarine; text-align: center;" name="selected_cell" id="cell">
+                        {% for option in options %}
+                            <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" name="option" value={{option}} id={{option}} >
+                        {% endfor %}
+                        {% csrf_token %}
+                    </form>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -94,26 +147,17 @@
         function select_cell(clicked_id)
         {
             selected_cell = clicked_id;
-            document.getElementById('selected_cell').innerHTML = selected_cell;
+            console.log("here")
             document.getElementById('cell').value = selected_cell;
+
+        };
+
+        if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
+                    setTimeout(function(){
+           window.location.reload(1);
+        }, 2000);
         }
 
-        function select_option(option)
-        {
-            if (option === "pick" || option === "teleport") {
-                if (selected_cell === -1) {
-                    alert("You need to choose a cell to execute this option!");
-                } else {
-                    alert("You " + option + "ed the cell " + selected_cell);
-                }
-            } else {
-                alert("You chose the " + option + " option");
-            }
-            selected_cell = -1;
-            document.getElementById('selected_cell').innerHTML = "";
-            document.getElementById('cell').value = "";
-            // TODO: execute option
-        }
 
       </script>
 

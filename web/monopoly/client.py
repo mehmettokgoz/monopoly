@@ -40,7 +40,7 @@ class MonopolyClient:
             return
         self.sock.send(s)
 
-        return self.sock.recv(2048)
+        return self.sock.recv(4096)
 
     def close(self):
         self.sock.close()
