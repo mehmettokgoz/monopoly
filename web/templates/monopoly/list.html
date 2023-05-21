@@ -27,9 +27,9 @@
             {% endfor %}
 
             <form method="post" action="/new">
-                <label>Name</label><br>
+                <label>Board Name: </label><br>
                 <input type="text" name="name"><br>
-                <label>Board json</label><br>
+                <label>Board JSON Path (Please give absolute path): </label><br>
                 <input type="text" name="json_board" value=""><br><br>
                 {% csrf_token %}
                 <input type="submit" value="Send">
