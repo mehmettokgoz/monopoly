@@ -14,7 +14,7 @@ from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1297
+port = 1295
 
 sample_board = [
     {"color": "blue", "card": "start", "text": 1, },
@@ -180,6 +180,10 @@ def login_post(request):
     response.set_cookie('token', token_response)
     response.set_cookie('username', username)
     return response
+
+
+def register_view(request):
+    return render(request, 'monopoly/register.html', {'message': ''})
 
 
 def logout(request):

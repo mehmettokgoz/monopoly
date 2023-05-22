@@ -4,37 +4,72 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  background-color:white;
+  width: 100%;
+  border-radius:10px;
+}
 
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
     <title></title>
   </head>
 
-  <body>
+  <body style="background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
 
-  <div style="display:flex; flex-direction:column;gap:20px;">
-        <div style="font-family:'Verdana'; width:{{1020}}px; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
-            <a href="/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
-            <div style="display:flex;gap:10px;">
-                <p style="display:flex;justify-content:center;align-items:center;margin:0">username: {{username}}</p>
-                <a href="/logout"><button >Logout</button></a>
+    <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;">
+        <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+            <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
+            <div style="display:flex;gap:10px; font-size:15px;">
+                <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
+                <a href="/logout"><button style="padding:10px;font-size:18px;height:100%;">Logout</button></a>
             </div>
         </div>
 
-      <div>
+
           <h1>{{message}}</h1>
 
-            {% for board in boards %}
-                <h1>Join the game: <a href="/board/{{board}}">{{board}}</a></h1>
-            {% endfor %}
+            <table>
+                <tr>
+                    <th>Board Name</th>
+                    <th>User Number</th>
+                    <th>Ready User Name</th>
+                    <th>State</th>
+                    <th></th>
+                </tr>
 
-            <form method="post" action="/new">
-                <label>Board Name: </label><br>
-                <input type="text" name="name"><br>
-                <label>Board JSON Path (Please give absolute path): </label><br>
-                <input type="text" name="json_board" value=""><br><br>
+                {% for board in boards %}
+                    <tr>
+                        <td>
+                            <a href="/board/{{board}}">{{board}}</a>
+                        </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>Waiting...</td>
+                        <td><button>Join</button></td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+
+            <form style="margin-top:50px;display:flex; flex-direction:row;justify-content:space-between;padding:15px;border-radius:10px;background-color:white;" method="post" action="/new">
+                <input style="width:30%;" type="text" name="name" placeholder="Board Name">
+                <textarea style="width:50%;" type="text" name="json_board" value="" placeholder="Board JSON Path (Please give absolute path)"></textarea>
                 {% csrf_token %}
-                <input type="submit" value="Send">
+                <input style="width:10%;" type="submit" value="Send">
             </form>
-      </div>
+
 
   </div>
 
