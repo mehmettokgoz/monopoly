@@ -16,10 +16,10 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;text-align:center;">
             {{ message }}
-            <form method="post" action="/auth" style="display:flex;flex-direction:column;width:20%;margin-left:auto;margin-right:auto;text-align:center;gap:5px;">
+            <form method="post" action="/signup" style="display:flex;flex-direction:column;width:20%;margin-left:auto;margin-right:auto;text-align:center;gap:5px;">
                 <p style="margin:0;font-size:20px;">Username</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="username"/>
-                <p style="margin:0;font-size:20px;">e-Mail</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="username"/>
-                <p style="margin:0;font-size:20px;">Full Name</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="username"/>
+                <p style="margin:0;font-size:20px;">e-Mail</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="email"/>
+                <p style="margin:0;font-size:20px;">Full Name</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="full_name"/>
                 <p style="margin:0;font-size:20px;">Password</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="password" name="password"/>
                 {% csrf_token %}
                 <input style="height:40px;border-radius:10px;border-width:2px;border:solid;margin-top:20px;" type="submit" name="Login" value="Register"/>

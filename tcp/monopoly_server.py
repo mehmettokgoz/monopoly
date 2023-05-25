@@ -10,8 +10,9 @@ from game.User import User
 
 from protocol.client_message import decode_opcode, StartGameCodec, NewBoardCodec, OpenBoardCodec, AuthCodec, \
     CloseBoardCodec, CommandCodec, ReadyBoardCodec, ListBoardCodec, WatchBoardCodec, UnwatchBoardCodec, BoardStateCodec
+from web.monopoly.protocol import RegisterCodec
 
-boards = {}
+boards = []
 user_agents = []
 users = {}
 users_db = {
@@ -23,6 +24,13 @@ users_db = {
 }
 
 block = Lock()
+
+
+def get_board_obj(name):
+    for b in boards:
+        if b["name"] == name:
+            return b["obj"]
+    return None
 
 
 class AgentBoard:
@@ -58,73 +66,80 @@ class AgentBoard:
         elif opcode == "start":
             with block:
                 s = StartGameCodec().decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].start_game()
-                else:
-                    return f"Board {s.name} is not present."
-                return f"start!"
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.start_game()
+                    return f"start!"
+                return f"Board {s.name} is not present."
         elif opcode == "new":
             with block:
                 s = NewBoardCodec().decode(req)
                 board = Board(os.path.abspath(s.path))
-                boards[s.name] = board
+                boards.append({"name": s.name, "obj": board})
                 return f"New board with name {s.name} is created!"
         elif opcode == "list":
             with block:
                 s = ListBoardCodec().decode(req)
-                if len(boards) > 0:
-                    return ",".join(boards.keys())
-                else:
+                res = ""
+                for i in range(len(boards)):
+                    obj: Board = boards[i]["obj"]
+                    res += boards[i]["name"] + ":" + str(len(obj.ready_users())) + ":" + str(
+                        len(obj.users)) + ":" + str(obj.is_started)
+                    if i != len(boards) - 1:
+                        res += ","
+                if res == "":
                     return "No board is available."
+                return res
         elif opcode == "close":
             with block:
                 s = CloseBoardCodec().decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].detach(self.user)
-                else:
-                    return f"Board {s.name} is not present."
-                return f"{self.user} is detached from board."
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.detach(self.user)
+                    return f"{self.user} is detached from board."
+                return f"Board {s.name} is not present."
         elif opcode == "open":
             print("Inside open() server: ", self.user.username, threading.current_thread().ident)
             with block:
                 s = OpenBoardCodec().decode(req)
-                print("open codec: ", s.name)
-                if s.name in boards.keys():
-                    boards[s.name].attach(self.user, self.log, self.turncb)
-                else:
-                    return f"Board {s.name} is not present."
-                return f"{self.user} is attached to board."
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.attach(self.user, self.log, self.turncb)
+                    return f"{self.user} is attached to board."
+                return f"Board {s.name} is not present."
         elif opcode == "ready":
             with block:
                 s = ReadyBoardCodec().decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].ready(self.user)
-                else:
-                    return f"Board {s.name} is not present."
-                return f"ready!"
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.ready(self.user)
+                    return f"ready!"
+                return f"Board {s.name} is not present."
         elif opcode == "watch":
             with block:
                 s = WatchBoardCodec().decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].watch(self.user, self.log)
-                else:
-                    return f"Board {s.name} is not present."
-                return f"watch!"
+                s = ReadyBoardCodec().decode(req)
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.watch(self.user, self.log)
+                    return f"watch!"
+                return f"Board {s.name} is not present."
         elif opcode == "unwatch":
             with block:
                 s = UnwatchBoardCodec().decode(req)
-                if s.name in boards.keys():
-                    boards[s.name].unwatch(self.user)
-                else:
-                    return f"Board {s.name} is not present."
-                return f"unwatch!"
+                b = get_board_obj(s.name)
+                if b is not None:
+                    b.unwatch(self.user)
+                    return f"unwatch!"
+                return f"Board {s.name} is not present."
         elif opcode == "state":
             with block:
                 s = BoardStateCodec().decode(req)
                 print(s)
-                if s.name in boards.keys():
-                    state = boards[s.name].get_board_state()
-                    return state
+                b = get_board_obj(s.name)
+                if b is not None:
+                    return b.get_board_state()
+                return f"Board {s.name} is not present."
 
     def turncb(self, board: Board, options):
         if "buy" in options or "upgrade" in options:
@@ -171,6 +186,11 @@ class Agent:
         else:
             self.log("Login failed, please check your username or password!")
 
+    def register(self, s: RegisterCodec):
+        # TODO: Protect users_db from multiple access
+        users_db[s.username] = s.password
+        self.log(f"User {s.username} is successfully registered.")
+
     def listen_reqs(self):
         req = self.sock.recv(1024)
         while req and req != b'':
@@ -180,6 +200,10 @@ class Agent:
                 s = AuthCodec().decode(req)
                 print(s)
                 self.authenticate(s)
+            elif opcode == "register":
+                s = RegisterCodec().decode(req)
+                print(s)
+                self.register(s)
             elif token == "NO_TOKEN":
                 self.sock.send("Please authenticate using your password.".encode())
             else:

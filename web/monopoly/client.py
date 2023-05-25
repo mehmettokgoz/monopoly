@@ -2,7 +2,7 @@
 import socket
 
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
-    CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec, BoardStateCodec
+    CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec, BoardStateCodec, RegisterCodec
 
 
 class MonopolyClient:
@@ -18,6 +18,8 @@ class MonopolyClient:
             s = NewBoardCodec(token=token, name=args[0], path=args[1]).encode()
         elif command == "auth":
             s = AuthCodec(token=token, name=args[0], password=args[1]).encode()
+        elif command == "register":
+            s = RegisterCodec(token=token, username=args[0], email=args[1], full_name=args[2], password=args[3]).encode()
         elif command == "list":
             s = ListBoardCodec(token).encode()
         elif command == "open":

@@ -14,38 +14,7 @@ from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1295
-
-sample_board = [
-    {"color": "blue", "card": "start", "text": 1, },
-    {"color": "#995237", "card": "property", "text": 2, "money": 123},
-    {"color": "#995237", "card": "chance", "text": 3},
-    {"color": "#995237", "card": "property", "text": 4},
-    {"color": "blue", "card": "chance", "text": 5},
-    {"color": "#aae1ff", "card": "property", "text": 6},
-    {"color": "#aae1ff", "card": "property", "text": 7},
-    {"color": "blue", "card": "go_to_jail", "text": 8},
-    {"color": "#db3a93", "card": "property", "text": 9},
-    {"color": "#db3a93", "card": "property", "text": 10},
-    {"color": "blue", "card": "chance", "text": 11},
-    {"color": "#f69421", "card": "property", "text": 12},
-    {"color": "#f69421", "card": "property", "text": 13},
-    {"color": "#f69421", "card": "property", "text": 14},
-    {"color": "blue", "card": "parking", "text": 15},
-    {"color": "#ec1a24", "card": "property", "text": 16},
-    {"color": "#ec1a24", "card": "property", "text": 17},
-    {"color": "blue", "card": "chance", "text": 18},
-    {"color": "#fff100", "card": "property", "text": 19},
-    {"color": "#fff100", "card": "property", "text": 20},
-    {"color": "#fff100", "card": "property", "text": 21},
-    {"color": "blue", "card": "go_to_jail", "text": 22},
-    {"color": "#1db35b", "card": "property", "text": 23},
-    {"color": "#1db35b", "card": "property", "text": 24},
-    {"color": "blue", "card": "chance", "text": 25},
-    {"color": "#0572b8", "card": "property", "text": 26},
-    {"color": "blue", "card": "chance", "text": 27},
-    {"color": "#0572b8", "card": "property", "text": 28},
-]
+port = 1590
 
 
 def index(request, board_name):
@@ -67,9 +36,8 @@ def index(request, board_name):
                          [((size - 1) * base, i * base) for i in range(1, size)] + \
                          [(i * base, (size - 1) * base) for i in range(size - 2, -1, -1)] + \
                          [(0, i * base) for i in range(size - 2, 0, -1)]
-    cell_text_locations = [(int(c[0] + base / 2), int(c[1] + base / 2)) for c in cell_svg_locations]
     cells = response["cells"]
-    print(response)
+
     for i in range(size * 2 + (size - 2) * 2):
         if i == 0 or i == size - 1 or i == 2 * size - 2 or i == 3 * size - 3:
             cells[i]["direction"] = "corner"
@@ -81,6 +49,24 @@ def index(request, board_name):
             cells[i]["direction"] = "bottom"
         else:
             cells[i]["direction"] = "left"
+
+    cell_text_locations = []
+    for i in range(len(cell_svg_locations)):
+        c = cell_svg_locations[i]
+        if cells[i]["type"] == "property":
+            if cells[i]["direction"] == "corner":
+                cell_text_locations.append((int(c[0] + base / 2), int(c[1] + base / 2)))
+            elif cells[i]["direction"] == "up":
+                cell_text_locations.append((int(c[0] + base / 2), int(c[1] + 20)))
+            elif cells[i]["direction"] == "right":
+                cell_text_locations.append((int(c[0] + 40), int(c[1] + base / 2)))
+            elif cells[i]["direction"] == "bottom":
+                cell_text_locations.append((int(c[0] + base / 2), int(c[1] + 40)))
+            elif cells[i]["direction"] == "left":
+                cell_text_locations.append((int(c[0]) + 60, int(c[1] + base / 2)))
+        else:
+            cell_text_locations.append((int(c[0] + base / 2), int(c[1] + base / 2)))
+
     for c in range(len(cells)):
         cells[c]["index"] = c
         cells[c]["location"] = cell_svg_locations[c]
@@ -88,18 +74,21 @@ def index(request, board_name):
 
     for user_index in response["user_positions"].keys():
         response["user_positions"][user_index] = cells[response["user_positions"][user_index]]["text_location"]
-
-    global curr_chance_card
-    curr_chance_card = response["curr_chance_card"]
+    print(response)
+    curr_chance_card = None
+    if response["curr_chance_card"] != '' or response["curr_chance_card"] != "":
+        curr_chance_card = response["curr_chance_card"]
 
     context = {
         "username": request.COOKIES.get("username"),
         "name": board_name,
         "users": response["users"],
         "current_user": response["current_user"],
-        "curr_chance_card": response["curr_chance_card"],
+        "curr_chance_card": curr_chance_card,
         "options": response["options"],
         "user_positions": response["user_positions"],
+        "started": response["started"],
+        "total_size": len(cells),
         "cells": cells,
         "size": size,
         "base": base,
@@ -125,15 +114,21 @@ def list_boards(request):
     client = MonopolyClient(port)
     if token is not None:
         response = client.send_command(token, "list")
+        print(response)
         client.close()
         response = response.decode().split(",")
-        if len(response) <= 0:
+        if response[0] == "No board is available.":
             return render(request, "monopoly/list.html",
-                          {"username": request.COOKIES.get("username"), 'message': 'No board is available.',
+                          {"username": request.COOKIES.get("username"),
+                           'message': 'No board is available. You can create a new board using form below.',
                            "boards": []})
         else:
+            response_dict = []
+            for i in response:
+                i = i.split(":")
+                response_dict.append({"name": i[0], "users": i[1], "ready": i[2], "started": i[3]})
             return render(request, "monopoly/list.html",
-                          {"username": request.COOKIES.get("username"), 'message': "", "boards": response})
+                          {"username": request.COOKIES.get("username"), 'message': "", "boards": response_dict})
     else:
         return HttpResponseRedirect("/login")
 
@@ -165,7 +160,6 @@ def login_post(request):
     username = request.POST['username']
     password = request.POST['password']
 
-
     # test if user is not disabled by admin
     client = MonopolyClient(port)
     response = client.send_command("NO_TOKEN_REQUIRED", "auth", username, password)
@@ -186,6 +180,21 @@ def register_view(request):
     return render(request, 'monopoly/register.html', {'message': ''})
 
 
+def register_post(request):
+    username = request.POST['username']
+    email = request.POST['email']
+    full_name = request.POST['full_name']
+    password = request.POST['password']
+
+    print(username, email, full_name, password)
+
+    client = MonopolyClient(port)
+    response = client.send_command("NO_TOKEN_REQUIRED", "register", username, email, full_name, password)
+    client.close()
+    response = HttpResponseRedirect("/")
+    return response
+
+
 def logout(request):
     response = HttpResponseRedirect('/')
     response.delete_cookie('token')
@@ -196,7 +205,6 @@ def logout(request):
 def new_board(request):
     board_json = request.POST['json_board']
     name = request.POST['name']
-
 
     # TODO: Pull list data here from server
     context = {}

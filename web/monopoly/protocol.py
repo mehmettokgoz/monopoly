@@ -7,9 +7,7 @@ def decode_opcode(b):
     print(b)
     req = b.decode().split(",")
 
-    if req[0] == "auth":
-        return "auth"
-    elif req[0].split(":")[0] == "token":
+    if req[0].split(":")[0] == "token":
         return req[0].split(":")[1], req[1]
     else:
         return "NO_TOKEN", req[0]
@@ -198,4 +196,27 @@ class BoardStateCodec:
         req = req.decode().split(',')
         self.token = req[0].split(":")[1]
         self.name = req[2]
+        return self
+
+
+class RegisterCodec:
+
+    def __init__(self, token="", username="", email="", full_name="", password=""):
+        self.token = token
+        self.username = username
+        self.email = email
+        self.full_name = full_name
+        self.password = password
+
+    def encode(self):
+        return ("token:" + self.token + ",register," + self.username+","+self.email+","+self.full_name+","+self.password).encode("utf-8")
+
+    def decode(self, req):
+        req = req.decode().split(',')
+
+        self.token = req[0].split(":")[1]
+        self.username = req[2]
+        self.email = req[3]
+        self.full_name = req[4]
+        self.password = req[5]
         return self

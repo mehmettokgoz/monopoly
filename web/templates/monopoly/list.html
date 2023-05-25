@@ -10,7 +10,6 @@ table {
   border-collapse: collapse;
   background-color:white;
   width: 100%;
-  border-radius:10px;
 }
 
 td, th {
@@ -20,16 +19,16 @@ td, th {
 }
 
 tr:nth-child(even) {
-  background-color: #dddddd;
+  background-color: white;
 }
 </style>
     <title></title>
   </head>
 
-  <body style="background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
+  <body style="margin:0;padding:0;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
 
-    <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;">
-        <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+    <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;;padding-top:10px;">
+        <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0)">
             <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
             <div style="display:flex;gap:10px; font-size:15px;">
                 <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
@@ -38,32 +37,33 @@ tr:nth-child(even) {
         </div>
 
 
-          <h1>{{message}}</h1>
+          <h1 style="font-size:20px; font-family:'Verdana';">{{message}}</h1>
 
             <table>
                 <tr>
                     <th>Board Name</th>
                     <th>User Number</th>
                     <th>Ready User Name</th>
-                    <th>State</th>
-                    <th></th>
+                    <th>Started?</th>
                 </tr>
 
                 {% for board in boards %}
                     <tr>
                         <td>
-                            <a href="/board/{{board}}">{{board}}</a>
+                            {{board.name}}
                         </td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>Waiting...</td>
-                        <td><button>Join</button></td>
+                        <td>{{board.ready}}</td>
+                        <td>{{board.users}}</td>
+
+                        <td>{{board.started}}</td>
+                        <td><a style="display:flex;" href="/board/{{board.name}}"><button style="width:100%">Join</button></a></td>
                     </tr>
                 {% endfor %}
 
+
             </table>
 
-            <form style="margin-top:50px;display:flex; flex-direction:row;justify-content:space-between;padding:15px;border-radius:10px;background-color:white;" method="post" action="/new">
+            <form style="margin-top:50px;display:flex; flex-direction:row;justify-content:space-between;padding:15px;background-color:white;" method="post" action="/new">
                 <input style="width:30%;" type="text" name="name" placeholder="Board Name">
                 <textarea style="width:50%;" type="text" name="json_board" value="" placeholder="Board JSON Path (Please give absolute path)"></textarea>
                 {% csrf_token %}
