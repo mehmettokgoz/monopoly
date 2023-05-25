@@ -6,10 +6,10 @@ Created by @fazlibalkan (2380178) and @mehmettokgoz (2528784).
 
 | Folder   | Purpose                                                                      |
 |----------|------------------------------------------------------------------------------|
-| web      | Django web application which contains `monopoly` game                        |
+| web      | Django web application that contains `monopoly` game                         |
 | game     | Includes the game logic implemented in Phase 1 with minor changes.           |
 | protocol | Includes the necessary classes for serialization/deserialization of messages |
-| tcp      | Includes the client and server implementations.                              |
+| tcp      | Includes the client and server class implementations.                        |
 
 > We implemented the client and server as classes inside the tcp folder. This allowed us to separate the client interface
 > from the actual client implementation and use different kind of application interfaces such as CLI and GUI. We used the same
