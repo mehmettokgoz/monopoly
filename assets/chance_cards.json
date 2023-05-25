@@ -4,7 +4,18 @@
          "type":"start"
       },
       {
-         "type":"chance_card"
+         "type":"property",
+         "name":"Cankaya",
+         "cell":2,
+         "color":"#995237",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
       },
       {
          "type":"chance_card"
@@ -14,6 +25,139 @@
       },
       {
          "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"Kecioren",
+         "cell":2,
+         "color":"#995237",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+            {
+         "type":"property",
+         "name":"Mamak",
+         "cell":2,
+         "color":"#aae1ff",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"Altindag",
+         "cell":2,
+         "color":"#db3a93",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"teleport"
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"property",
+         "name":"Etimesgut",
+         "cell":4,
+         "color":"#f69421",
+         "price":100,
+         "rents":[
+            40,
+            120,
+            300,
+            500,
+            700
+         ]
+      },
+            {
+         "type":"property",
+         "name":"Balgat",
+         "cell":2,
+         "color":"#f69421",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"teleport"
+      },
+            {
+         "type":"property",
+         "name":"Kizilcahamam",
+         "cell":2,
+         "color":"#f69421",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+      {
+         "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"Polatli",
+         "cell":2,
+         "color":"#ec1a24",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+            {
+         "type":"property",
+         "name":"Golbasi",
+         "cell":2,
+         "color":"#ec1a24",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
       },
       {
          "type":"chance_card"
@@ -21,14 +165,50 @@
       {
          "type":"jail"
       },
-      {
-         "type":"chance_card"
+       {
+         "type":"property",
+         "name":"Elmadag",
+         "cell":2,
+         "color":"#fff100",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+       {
+         "type":"property",
+         "name":"Yenimahalle",
+         "cell":2,
+         "color":"#fff100",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
       },
       {
          "type":"chance_card"
       },
       {
-         "type":"goto_jail"
+         "type":"property",
+         "name":"Beypazari",
+         "cell":12,
+         "color":"#fff100",
+         "price":150,
+         "rents":[
+            70,
+            180,
+            500,
+            700,
+            1000
+         ]
       },
       {
          "type":"chance_card"
