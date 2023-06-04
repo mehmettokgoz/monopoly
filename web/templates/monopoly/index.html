@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="reset.css">
+    <title>Monopoly Game</title>
+    <style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  text-align: left;
+  padding:5px;
+}
+
+</style>
+</head>
+<body style="margin:0;padding:0;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
+    <div style="padding:0;margin:0;width:100%;height:100%;z-index:-1;position:absolute;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg'); background-repeat: repeat;filter: grayscale(60%);background-size: 40%;">
+        <img>
+    </div>
+    <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;gap:20px;padding-top:10px;">
+        <div style="font-family:'Gill Sans'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
+            <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
+            <div style="display:flex;gap:10px;font-size:18px;">
+                <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
+                <a href="/logout"><button style="padding:10px;font-size:18px;height:100%;">Logout</button></a>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction: row; width:100%; justify-content:space-between;">
+            <div style="width:70%;display:flex;justify-content:center;">
+                <p style="display:none" id="total_size">{{total_size}}</p>
+                <svg width={{width}} height={{height}} fill="#cde6d1">
+
+                    <g>
+                        <rect x={{base}} y={{base}} width={{middle_rect_size}} height={{middle_rect_size}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{middle_text_loc}} y={{middle_text_loc}} transform="rotate(-45, {{middle_text_loc}}, {{middle_text_loc}})" alignment-baseline="middle" font-size="70" font-family="Gill Sans" stroke-width="0" stroke="#000" text-anchor="middle" fill="black">MONOPOLY</text>
+                    </g>
+                    {% for cell in cells %}
+                        <g id={{cell.index}} onClick="select_cell(this.id)" onmouseover="handleEvent.call(event)" onmouseout="handleEvent.call(event)" >
+                        {% if cell.type == "property" %}
+                            {% if cell.direction == "up" %}
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                    <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                                    {% if cell.owner != None %}
+                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                                    {% endif %}
+
+                            {% elif cell.direction == "right" %}
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                                    {% if cell.owner != None %}
+                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                                    {% endif %}
+
+                            {% elif cell.direction == "left" %}
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                    <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                                    {% if cell.owner != None %}
+                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                                    {% endif %}
+
+                            {% else %}
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level: {{cell.level}}</text>
+                                    {% if cell.owner != None %}
+                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                                    {% endif %}
+
+                            {% endif %}
+                        {% elif cell.type == "station" %}
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">STATION {{cell.direction}}</text>
+                        {% elif cell.type == "start" %}
+                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">START</text>
+                        {% elif cell.type == "chance_card" %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">
+                                <tspan x={{cell.text_location.0}} y={{cell.text_location.1}} >CHANCE</tspan>
+                                <tspan x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}} >CARD</tspan>
+                            </text>
+                       {% elif cell.type == "teleport" %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TELEPORT</text>
+                       {% elif cell.type == "tax" %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TAX</text>
+                       {% elif cell.type == "jail" %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">JAIL</text>
+                       {% elif cell.type == "goto_jail" %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">GO TO JAIL</text>
+
+                        {% else %}
+                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.type}}</text>
+                        {% endif %}
+                        </g>
+                    {% endfor %}
+                    {% for key, values in user_positions.items %}
+                    <g>
+                        <circle cx={{values.0}} cy={{values.1}} r="15" stroke="black" stroke-width="3" fill="gray"/>
+                        <text x={{values.0}} y={{values.1}} text-anchor="middle"  stroke-width="2px" dy=".3em">{{key.0}}</text>
+                    </g>
+
+                    {% endfor %}
+                </svg>
+            </div>
+
+            <div style="font-family: 'Gill Sans', sans-serif;width:30%; display: flex; flex-direction: column;">
+
+                <div>
+                    {% if game_over != "" %}
+                        <h2>Winner: {{game_over}}</h2>
+                    {% endif %}
+
+                    <h2>Users</h2>
+                    {% if users %}
+                        <table style="width:100%;">
+                        <tr>
+                            <th>Username</th>
+                            <th>Money</th>
+                        </tr>
+                        {% for user in users %}
+                            <tr>
+                                <td>
+                                    {{user.username}}
+                                </td>
+                                <td>
+                                    {{user.money}}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    {% else %}
+                        <h2 style="font-weight:normal;">No user is attached yet.</h2>
+                    {% endif %}
+
+
+                    {% if current_user != "" %}
+                        <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
+                            <h2 style="margin:0; padding:0;">Current user:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="current_user">{{current_user}}</h2>
+                        </div>
+                    {% endif %}
+
+                    {% if curr_chance_card != None %}
+
+                        <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
+                            <h2 style="margin:0; padding:0;">Chance Card:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="curr_chance_card">{{curr_chance_card}}</h2>
+                        </div>
+
+                    {% endif %}
+
+                    {% if not started %}
+                        <div style="display:flex; flex-direction:column; gap:5px;margin-top:30px;">
+                            <form action="/">
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/ready/{{name}}" value="Ready">
+                            </form>
+                            <form>
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/detach/{{name}}" value="Detach">
+                            </form>
+                            <form>
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/attach/{{name}}" value="Attach">
+                            </form>
+                            <form>
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/start/{{name}}" value="Start">
+                            </form>
+                        </div>
+                    {% endif %}
+
+                {% if current_user == username %}
+
+                <div style="margin-top:20px;">
+                    <div style="padding: 8px;">Current selected cell: </div>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <form method="post" action="/command/{{name}}" style="display:flex; flex-direction:column;gap:10px;" >
+                            <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
+                            {% for option in options %}
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" name="option" value={{option}} id={{option}} >
+                            {% endfor %}
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+
+                {% endif %}
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        var selected_cell = -1;
+
+        function select_cell(clicked_id)
+        {
+            selected_cell = clicked_id;
+            console.log("here")
+            document.getElementById('cell').value = selected_cell;
+
+        };
+
+        function handleEvent(event) {
+
+        };
+
+        if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
+                    setTimeout(function(){
+           window.location.reload(1);
+        }, 2000);
+        }
+
+
+      </script>
+
+</body>
+</html>

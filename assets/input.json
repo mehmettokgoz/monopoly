@@ -5,9 +5,88 @@
       },
       {
          "type":"property",
-         "name":"bostancı",
+         "name":"1 ",
          "cell":2,
-         "color":"red",
+         "color":"#995237",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"2",
+         "cell":2,
+         "color":"#995237",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"3",
+         "cell":2,
+         "color":"#995237",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+            {
+         "type":"property",
+         "name":"4",
+         "cell":2,
+         "color":"#aae1ff",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"chance_card"
+      },
+            {
+         "type":"property",
+         "name":"5",
+         "cell":2,
+         "color":"#aae1ff",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+            {
+         "type":"property",
+         "name":"6",
+         "cell":2,
+         "color":"#db3a93",
          "price":120,
          "rents":[
             50,
@@ -20,11 +99,26 @@
       {
          "type":"teleport"
       },
+
+            {
+         "type":"property",
+         "name":"7",
+         "cell":2,
+         "color":"#db3a93",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
       {
          "type":"property",
-         "name":"ocean garden",
+         "name":"8",
          "cell":4,
-         "color":"blue",
+         "color":"#f69421",
          "price":100,
          "rents":[
             40,
@@ -34,15 +128,119 @@
             700
          ]
       },
+            {
+         "type":"property",
+         "name":"9",
+         "cell":2,
+         "color":"#f69421",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+      {
+         "type":"teleport"
+      },
+            {
+         "type":"property",
+         "name":"10",
+         "cell":2,
+         "color":"#f69421",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+                  {
+         "type":"property",
+         "name":"11",
+         "cell":2,
+         "color":"#ec1a24",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
       {
          "type":"tax"
       },
+            {
+         "type":"property",
+         "name":"12",
+         "cell":2,
+         "color":"#ec1a24",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+            {
+         "type":"property",
+         "name":"13",
+         "cell":2,
+         "color":"#ec1a24",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
       {
          "type":"property",
-         "name":"blue skyscraper",
-         "cell":6,
-         "color":"blue",
-         "price":140,
+         "name":"14",
+         "cell":11,
+         "color":"#ec1a24",
+         "price":150,
+         "rents":[
+            70,
+            180,
+            500,
+            700,
+            1000
+         ]
+      },
+      {
+         "type":"tax"
+      },
+       {
+         "type":"property",
+         "name":"15",
+         "cell":2,
+         "color":"#fff100",
+         "price":120,
+         "rents":[
+            50,
+            150,
+            400,
+            600,
+            900
+         ]
+      },
+       {
+         "type":"property",
+         "name":"16",
+         "cell":2,
+         "color":"#fff100",
+         "price":120,
          "rents":[
             50,
             150,
@@ -56,9 +254,9 @@
       },
       {
          "type":"property",
-         "name":"red castle",
-         "cell":8,
-         "color":"red",
+         "name":"17",
+         "cell":12,
+         "color":"#fff100",
          "price":150,
          "rents":[
             70,
@@ -67,39 +265,22 @@
             700,
             1000
          ]
-      },
-      {
-         "type":"chance_card"
       },
       {
          "type":"goto_jail"
       },
       {
          "type":"property",
-         "name":"tarabya",
-         "cell":11,
-         "color":"pink",
-         "price":150,
+         "name":"18",
+         "cell":2,
+         "color":"#0572b8",
+         "price":120,
          "rents":[
-            70,
-            180,
-            500,
-            700,
-            1000
-         ]
-      },
-            {
-         "type":"property",
-         "name":"üsküdar",
-         "cell":12,
-         "color":"pink",
-         "price":150,
-         "rents":[
-            70,
-            180,
-            500,
-            700,
-            1000
+            50,
+            150,
+            400,
+            600,
+            900
          ]
       }
    ],
