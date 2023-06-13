@@ -7,34 +7,42 @@
     <link rel="stylesheet" href="reset.css">
     <title>Monopoly Game</title>
     <style>
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
+        table {
+            border-collapse: collapse;
+            background-color:gray;
+            width: 100%;
+        }
 
-td, th {
-  text-align: left;
-  padding:5px;
-}
+        td, th {
+            text-align: left;
+            padding:5px;
+        }
 
-</style>
+    </style>
 </head>
-<body style="margin:0;padding:0;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
+<body style="margin:0;padding:0;">
+
+    <!-- Background Image -->
     <div style="padding:0;margin:0;width:100%;height:100%;z-index:-1;position:absolute;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg'); background-repeat: repeat;filter: grayscale(60%);background-size: 40%;">
         <img>
     </div>
+
+    <input type="hidden" id="token" name="token" value="{{ token }}">
     <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;gap:20px;padding-top:10px;">
         <div style="font-family:'Gill Sans'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
             <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
             <div style="display:flex;gap:10px;font-size:18px;">
                 <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
-                <a href="/logout"><button style="padding:10px;font-size:18px;height:100%;">Logout</button></a>
+                <a href="/user/{{username}}"><button style="padding:10px;height:50%;text-align:center;">Profile</button></a>
+                <a href="/logout"><button style="padding:10px;height:50%;text-align:center;">Logout</button></a>
+
             </div>
         </div>
 
         <div style="display:flex; flex-direction: row; width:100%; justify-content:space-between;">
             <div style="width:70%;display:flex;justify-content:center;">
                 <p style="display:none" id="total_size">{{total_size}}</p>
+
                 <svg width={{width}} height={{height}} fill="#cde6d1">
 
                     <g>
@@ -42,79 +50,79 @@ td, th {
                         <text x={{middle_text_loc}} y={{middle_text_loc}} transform="rotate(-45, {{middle_text_loc}}, {{middle_text_loc}})" alignment-baseline="middle" font-size="70" font-family="Gill Sans" stroke-width="0" stroke="#000" text-anchor="middle" fill="black">MONOPOLY</text>
                     </g>
                     {% for cell in cells %}
-                        <g id={{cell.index}} onClick="select_cell(this.id)" onmouseover="handleEvent.call(event)" onmouseout="handleEvent.call(event)" >
+                    <g id={{cell.index}} onClick="select_cell(this.id)" >
                         {% if cell.type == "property" %}
-                            {% if cell.direction == "up" %}
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                    <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
-                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                                    {% if cell.owner != None %}
-                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                                    {% endif %}
+                        {% if cell.direction == "up" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <rect x={{cell.location.0}} y={{base|add:"-20"}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                        {% if cell.owner != None %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                        {% endif %}
 
-                            {% elif cell.direction == "right" %}
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
-                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                                    {% if cell.owner != None %}
-                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                                    {% endif %}
+                        {% elif cell.direction == "right" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                        {% if cell.owner != None %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                        {% endif %}
 
-                            {% elif cell.direction == "left" %}
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                    <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
-                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                                    {% if cell.owner != None %}
-                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                                    {% endif %}
-
-                            {% else %}
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                    <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
-                                    <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
-                                    <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level: {{cell.level}}</text>
-                                    {% if cell.owner != None %}
-                                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                                    {% endif %}
-
-                            {% endif %}
-                        {% elif cell.type == "station" %}
-                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">STATION {{cell.direction}}</text>
-                        {% elif cell.type == "start" %}
-                                <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
-                                <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">START</text>
-                        {% elif cell.type == "chance_card" %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">
-                                <tspan x={{cell.text_location.0}} y={{cell.text_location.1}} >CHANCE</tspan>
-                                <tspan x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}} >CARD</tspan>
-                            </text>
-                       {% elif cell.type == "teleport" %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TELEPORT</text>
-                       {% elif cell.type == "tax" %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TAX</text>
-                       {% elif cell.type == "jail" %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">JAIL</text>
-                       {% elif cell.type == "goto_jail" %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">GO TO JAIL</text>
+                        {% elif cell.direction == "left" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <rect x={{base|add:"-20"}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
+                        {% if cell.owner != None %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
+                        {% endif %}
 
                         {% else %}
-                            <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
-                            <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.type}}</text>
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height="20" fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level: {{cell.level}}</text>
+                        {% if cell.owner != None %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
                         {% endif %}
-                        </g>
+
+                        {% endif %}
+                        {% elif cell.type == "station" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">STATION {{cell.direction}}</text>
+                        {% elif cell.type == "start" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1"  style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">START</text>
+                        {% elif cell.type == "chance_card" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">
+                            <tspan x={{cell.text_location.0}} y={{cell.text_location.1}} >CHANCE</tspan>
+                            <tspan x={{cell.text_location.0}} y={{cell.text_location.1|add:"20"}} >CARD</tspan>
+                        </text>
+                        {% elif cell.type == "teleport" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TELEPORT</text>
+                        {% elif cell.type == "tax" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">TAX</text>
+                        {% elif cell.type == "jail" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">JAIL</text>
+                        {% elif cell.type == "goto_jail" %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="15" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">GO TO JAIL</text>
+
+                        {% else %}
+                        <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}}  fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
+                        <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.type}}</text>
+                        {% endif %}
+                    </g>
                     {% endfor %}
                     {% for key, values in user_positions.items %}
                     <g>
@@ -128,19 +136,29 @@ td, th {
 
             <div style="font-family: 'Gill Sans', sans-serif;width:30%; display: flex; flex-direction: column;">
 
+                <h2>Board <p id="board_name">{{name}}</p></h2>
                 <div>
                     {% if game_over != "" %}
-                        <h2>Winner: {{game_over}}</h2>
+                    <h2>Winner: {{game_over}}</h2>
                     {% endif %}
 
-                    <h2>Users</h2>
-                    {% if users %}
-                        <table style="width:100%;">
-                        <tr>
-                            <th>Username</th>
-                            <th>Money</th>
-                        </tr>
-                        {% for user in users %}
+                    <div style="width:300px;display:inline-block;vertical-align:top">
+                        <div id="status" style="background-color: #ffa0a0;">not connected</div>
+                    </div>
+                    <div style="width:400px; display:inline-block; vertical-align:top">
+                        <ul id='messagelist'>
+                        </ul>
+
+
+                        <h2>Users</h2>
+
+                        <table style="width:100%;" id="user_table">
+                            {% if users %}
+                            <tr>
+                                <th>Username</th>
+                                <th>Money</th>
+                            </tr>
+                            {% for user in users %}
                             <tr>
                                 <td>
                                     {{user.username}}
@@ -149,91 +167,221 @@ td, th {
                                     {{user.money}}
                                 </td>
                             </tr>
-                        {% endfor %}
-                    </table>
-                    {% else %}
-                        <h2 style="font-weight:normal;">No user is attached yet.</h2>
-                    {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            <h2 style="font-weight:normal;">No user is attached yet.</h2>
+                            {% endif %}
+                        </table>
 
 
-                    {% if current_user != "" %}
+
+                        {% if current_user != "" %}
                         <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
                             <h2 style="margin:0; padding:0;">Current user:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="current_user">{{current_user}}</h2>
                         </div>
-                    {% endif %}
+                        {% endif %}
 
-                    {% if curr_chance_card != None %}
+                        {% if curr_chance_card != None %}
 
                         <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
                             <h2 style="margin:0; padding:0;">Chance Card:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="curr_chance_card">{{curr_chance_card}}</h2>
                         </div>
 
-                    {% endif %}
+                        {% endif %}
 
-                    {% if not started %}
-                        <div style="display:flex; flex-direction:column; gap:5px;margin-top:30px;">
-                            <form action="/">
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/ready/{{name}}" value="Ready">
-                            </form>
-                            <form>
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/detach/{{name}}" value="Detach">
-                            </form>
-                            <form>
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/attach/{{name}}" value="Attach">
-                            </form>
-                            <form>
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" formaction="/start/{{name}}" value="Start">
-                            </form>
+                        <div style="display:flex; flex-direction:row; gap:5px;margin-top:30px;">
+                            <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendReady()" value="Ready">
+                            <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendDetach()" value="Detach">
+                            <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendAttach()" value="Attach">
+                            {% if not started %}
+                            <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendStart()" value="Start">
+                            {% endif %}
                         </div>
-                    {% endif %}
 
-                {% if current_user == username %}
 
-                <div style="margin-top:20px;">
-                    <div style="padding: 8px;">Current selected cell: </div>
-                    <div style="display:flex; flex-direction:column; gap:5px;">
-                        <form method="post" action="/command/{{name}}" style="display:flex; flex-direction:column;gap:10px;" >
-                            <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
-                            {% for option in options %}
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" name="option" value={{option}} id={{option}} >
-                            {% endfor %}
-                            {% csrf_token %}
-                        </form>
+                        {% if current_user == username %}
+
+                        <div style="margin-top:20px;">
+
+                            <div style="display:flex; flex-direction:column; gap:10px;;">
+
+                                <h2>Options</h2>
+                                {% if 'dice' not in options or 'buy' not in options %}
+                                <div style="padding: 8px;">Current selected cell: </div>
+                                <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
+                                {% endif %}
+                                {% for option in options %}
+                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value={{option}} id={{option}} >
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                        {% endif %}
                     </div>
+
+
                 </div>
-
-                {% endif %}
-                </div>
-
-
             </div>
+
         </div>
 
-    </div>
+        <script type="text/javascript">
+            var selected_cell = -1;
 
-    <script type="text/javascript">
-        var selected_cell = -1;
+            function select_cell(clicked_id)
+            {
+                selected_cell = clicked_id;
+                console.log("here")
+                document.getElementById('cell').value = selected_cell;
 
-        function select_cell(clicked_id)
-        {
-            selected_cell = clicked_id;
-            console.log("here")
-            document.getElementById('cell').value = selected_cell;
-
-        };
-
-        function handleEvent(event) {
-
-        };
-
-        if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
-                    setTimeout(function(){
-           window.location.reload(1);
-        }, 2000);
-        }
+            };
 
 
-      </script>
+            if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 2000);
+            }
+
+
+        </script>
+
+        <script>
+            function sendenter(e, f) {
+                if (e.keyCode == 13) { f();}
+                return false;
+            }
+            function addMess() {
+                var el = document.getElementById('newmess');
+                ws.socket.send(el.value);
+                el.value = "";
+            }
+
+            function updateStatistics(response) {
+                var board_state = JSON.parse(response[0].split("&")[1])
+                console.log("STATE IS ARRIVED. NEED TO UPDATE THE TABLE.",board_state)
+
+
+                for (var user in board_state["users"]) {
+                    table = document.getElementById('user_table')
+                    var row = table.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    cell1.innerHTML = user.username;
+                    cell2.innerHTML = user.money;
+                }
+
+            }
+
+            function sendAttach() {
+                var token = document.getElementById("token").value;
+                var board_name = document.getElementById("board_name").innerText;
+                ws.socket.send("open,"+board_name+","+token);
+            }
+
+            function sendDetach() {
+                var token = document.getElementById("token").value;
+                var board_name = document.getElementById("board_name").innerText;
+                ws.socket.send("close,"+board_name+","+token);
+            }
+
+            function sendReady() {
+                var token = document.getElementById("token").value;
+                var board_name = document.getElementById("board_name").innerText;
+                ws.socket.send("ready,"+board_name+","+token);
+            }
+
+            function sendStart() {
+                var token = document.getElementById("token").value;
+                var board_name = document.getElementById("board_name").innerText;
+                ws.socket.send("start,"+board_name+","+token);
+            }
+            function sendCommand(option) {
+                var token = document.getElementById("token").value;
+                var selected_cell = document.getElementById("cell").value
+                console.log(option, selected_cell)
+                var board_name = document.getElementById("board_name").innerText;
+                ws.socket.send("command,"+option+","+token+","+selected_cell);
+            }
+
+
+
+
+            class Ws {
+                constructor(ipport) {
+                    this.socket = undefined;
+                    this.ipport = ipport;
+                    this.createwebsocket();
+                }
+                createwebsocket() {
+                    var status = document.getElementById('status');
+                    if (this.socket)	// if already connected close it and reopen
+                        this.socket.close();
+
+                    var socket = new WebSocket('ws://' + this.ipport);
+                    socket.onopen = function() {
+                        // send id list for notifications
+                        status.textContent = 'Connected to Websocket.';
+                        var token = document.getElementById("token").value;
+                        var boardName = document.getElementById("board_name").innerText
+                        socket.send(boardName)
+                        socket.send("state,"+boardName+","+token)
+                        status.setAttribute('style','background-color: #a0ffa0');
+                    }
+                    socket.onerror = function() {
+                        status.textContent = 'Connection failed';
+                        status.setAttribute('style','background-color: #ffa0a0');
+                    }
+                    socket.onclose = function() {
+                        status.textContent = 'Connection closed';
+                        status.setAttribute('style','background-color: #ffa0a0');
+                        ws.socket = undefined;
+                        setTimeout(() => {
+                            if (! ws.socket ) {
+                                ws.createwebsocket();
+                            } }, 5000);
+                    }
+
+
+                    socket.onmessage = function wseventhandler (event) {
+                        var messages = event.data;
+
+                        console.log("on message func")
+                        if (!Array.isArray(messages)) {
+                            var content = event.data.split("&")
+                            if (content[0] === "l") {
+                                console.log("this is a log message")
+                                messages = messages.split("*");
+                            } else {
+                                messages = messages.split("*");
+                                updateStatistics(messages)
+                                return
+                            }
+                        }
+                        console.log("messages", messages)
+                        for ( var mid in messages) {
+                            var content = messages[mid].split("&")
+                            console.log("content: ", content)
+                            if (content[0] === "l") {
+                                console.log("appending new element", content[1])
+                                var messlist = document.getElementById('messagelist'),
+                                messitem = document.createElement('li');
+                                messitem.innerHTML = content[1];
+                                messlist.appendChild(messitem);
+                            } else {
+                                updateStatistics(messages[mid])
+                            }
+                        }
+                    }
+                    this.socket = socket
+
+                }
+            }
+            window.onload = function () {
+                ws = new Ws('127.0.0.1:5680')
+            }
+        </script>
 
 </body>
 </html>

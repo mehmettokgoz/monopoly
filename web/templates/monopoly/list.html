@@ -1,81 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  background-color:white;
-  width: 100%;
-}
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          background-color:#c3d4c4 ;
+          width: 100%;
+        }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+        td, th {
+          text-align: left;
+          padding: 8px;
+        }
+        </style>
+        <title>Monopoly Game</title>
+    </head>
 
-tr:nth-child(even) {
-  background-color: white;
-}
-</style>
-    <title></title>
-  </head>
+    <body style="margin:0;padding:0;;background-repeat: repeat;background-size: 40%;">
 
-  <body style="margin:0;padding:0;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
-
-    <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;;padding-top:10px;">
-        <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0)">
-            <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
-            <div style="display:flex;gap:10px; font-size:15px;">
-                <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
-                <a href="/logout"><button style="padding:10px;font-size:18px;height:100%;">Logout</button></a>
+        <div style="padding:0;margin:0;width:100%;height:100%;z-index:-1;position:absolute;background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg'); background-repeat: repeat;filter: grayscale(50%);background-size: 40%;"></div>
+        <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;;padding-top:10px;">
+            <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0)">
+                <a href="/">
+                    <img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval">
+                </a>
+                <div style="display:flex;gap:10px; font-size:15px;">
+                    <div style="display:flex;justify-content:center;align-items:center;margin:0;">
+                        username: <p id="username">{{username}}</p>
+                    </div>
+                    <a href="/logout">
+                        <button style="padding:10px;font-size:18px;height:100%;">Logout</button>
+                    </a>
+                </div>
             </div>
-        </div>
 
-
-          <h1 style="font-size:20px; font-family:'Verdana';">{{message}}</h1>
+            <h1 style="font-size:20px; font-family:'Verdana';">{{message}}</h1>
 
             <table>
-                <tr>
-                    <th>Board Name</th>
-                    <th>User Number</th>
-                    <th>Ready User Name</th>
-                    <th>Started?</th>
-                </tr>
+                {% if message == '' %}
+                    <tr>
+                        <th style="padding:15px;">Board Name</th>
+                        <th style="padding:15px;">User Number</th>
+                        <th style="padding:15px;">State</th>
+                    </tr>
+                {% endif %}
 
                 {% for board in boards %}
-                    <tr>
-                        <td>
-                            {{board.name}}
+                    <tr style="">
+                        <td style="padding:15px;">
+                            <a href="/board/{{board.name}}">{{board.name}} </a>
                         </td>
-                        <td>{{board.ready}}</td>
-                        <td>{{board.users}}</td>
+                        <td style="padding:15px;">{{board.users}}</td>
 
                         <td>{{board.started}}</td>
-                        <td><a style="display:flex;" href="/board/{{board.name}}"><button style="width:100%">Join</button></a></td>
+
                     </tr>
                 {% endfor %}
 
-
+                <tr>
+                    <td colspan="5" >
+                        <div style="display:flex;flex-direction:row;justify-content:space-evenly;">
+                            <a style="width:45%;display:flex;margin-top:10px;margin-bottom:10px;font-size:20px; font-family:'Verdana';text-decoration:none;" href="/create-template">
+                                <button style="width:100%;margin-left:auto;margin-right:auto;padding:5px;font-size:15px; font-family:'Verdana';text-decoration:none;">
+                                    Create from template
+                                </button>
+                            </a>
+                            <a style="width:45%;display:flex;margin-top:10px;margin-bottom:10px;font-size:20px; font-family:'Verdana';text-decoration:none;" href="/compose-board">
+                                <button style="width:100%;margin-left:auto;margin-right:auto;padding:5px;font-size:15px; font-family:'Verdana';text-decoration:none;">
+                                    Compose a new board
+                                </button>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
             </table>
-
-            <form style="margin-top:50px;display:flex; flex-direction:row;justify-content:space-between;padding:15px;background-color:white;" method="post" action="/new">
-                <input style="width:30%;" type="text" name="name" placeholder="Board Name">
-                <textarea style="width:50%;" type="text" name="json_board" value="" placeholder="Board JSON Path (Please give absolute path)"></textarea>
-                {% csrf_token %}
-                <input style="width:10%;" type="submit" value="Send">
-            </form>
-
-
-  </div>
-
-    <script type="text/javascript">
-
-      </script>
-
-  </body>
+        </div>
+    </body>
 </html>

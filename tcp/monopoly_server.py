@@ -69,7 +69,7 @@ class AgentBoard:
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.start_game()
-                    return f"start!"
+                    return f"Game is started at board {s.name}!"
                 return f"Board {s.name} is not present."
         elif opcode == "new":
             with block:
@@ -96,7 +96,7 @@ class AgentBoard:
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.detach(self.user)
-                    return f"{self.user} is detached from board."
+                    return f"{self.user.username} is detached from board."
                 return f"Board {s.name} is not present."
         elif opcode == "open":
             print("Inside open() server: ", self.user.username, threading.current_thread().ident)
@@ -105,7 +105,7 @@ class AgentBoard:
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.attach(self.user, self.log, self.turncb)
-                    return f"{self.user} is attached to board."
+                    return f"{self.user.username} is attached to board."
                 return f"Board {s.name} is not present."
         elif opcode == "ready":
             with block:
@@ -208,9 +208,12 @@ class Agent:
                 self.sock.send("Please authenticate using your password.".encode())
             else:
                 # TODO: Call the related AgenBoard here!
-                response = users[token].listen_reqs(req)
-                if response is not None:
-                    self.sock.send(response.encode())
+                try:
+                    response = users[token].listen_reqs(req)
+                    if response is not None:
+                        self.sock.send(response.encode())
+                except Exception as e:
+                    self.sock.send("Wrong token. Please authenticate using your password.".encode())
             req = self.sock.recv(1024)
 
     def log(self, log):

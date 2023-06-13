@@ -9,12 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.datastructures import MultiValueDictKeyError
 
 from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1590
+port = 1567
 
 
 def index(request, board_name):
@@ -92,6 +93,7 @@ def index(request, board_name):
         "cells": cells,
         "size": size,
         "base": base,
+        "token": token,
         "game_over": response["game_over"],
         "middle_rect_size": (size - 2) * base,
         "middle_text_loc": base + (size - 2) * base / 2,
@@ -120,7 +122,7 @@ def list_boards(request):
         if response[0] == "No board is available.":
             return render(request, "monopoly/list.html",
                           {"username": request.COOKIES.get("username"),
-                           'message': 'No board is available. You can create a new board using form below.',
+                           'message': 'No board is available. You can create a new board.',
                            "boards": []})
         else:
             response_dict = []
@@ -136,7 +138,11 @@ def list_boards(request):
 def execute_command(request, board_name):
     context = {}
     option = request.POST["option"]
-    selected_cell = request.POST["selected_cell"]
+    selected_cell = 0
+    try:
+        selected_cell = request.POST["selected_cell"]
+    except MultiValueDictKeyError as e:
+        selected_cell = 0
     token = request.COOKIES.get('token')
     if token:
         client = MonopolyClient(port)
@@ -270,3 +276,8 @@ def start(request, board_name):
         return HttpResponseRedirect(f"/board/{board_name}")
     else:
         return HttpResponseRedirect("/login")
+
+
+def create_template(request):
+    context = {}
+    return render(request, "monopoly/create-board.html", context)
