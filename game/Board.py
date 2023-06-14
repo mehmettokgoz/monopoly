@@ -61,18 +61,18 @@ class Board:
 
     def attach(self, user, callback, turncb):
         if not self.is_started:
-            print(self.users)
-            for a in self.users:
-                print(a.username)
+            # print(self.users)
+            # for a in self.users:
+            #    print(a.username)
             self.users.append(user)
             self.callbacks[user.username] = callback
             self.turncbs[user.username] = turncb
             self.status[user.username] = False
-            print("Now attaching: ", threading.current_thread().ident)
+            # print("Now attaching: ", threading.current_thread().ident)
             #self.log(user.username + " is attached to the board.")
-            print(self.users)
-            for a in self.users:
-                print(a.username)
+            # print(self.users)
+            # for a in self.users:
+            #    print(a.username)
         else:
             callback("The game is started, you can not join as player.")
 
@@ -116,7 +116,7 @@ class Board:
             self.teleport(user, args[0])
         elif command == "pick":
             self.pick_chance_card(user, args[0])
-        print("finished turn function, notifying logs.")
+        # print("finished turn function, notifying logs.")
 
     def get_user_state(self, user):
         # TODO: Generate a report for each user, money and properties with their levels
@@ -139,8 +139,8 @@ class Board:
                 user_serialized.append({"username": user.username, "money": self.user_amounts[user.username]})
             except:
                 user_serialized.append({"username": user.username, "money": 0})
-        print(self.curr_user)
-        print(self.users)
+        # print(self.curr_user)
+        # print(self.users)
         if self.curr_user == -1:
             DSA = json.dumps(
                 {"users": user_serialized, "user_positions": self.user_positions, "user_amounts": self.user_amounts,
@@ -161,7 +161,7 @@ class Board:
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one + dice_two)
+        # self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
             self.run_available(False)
@@ -212,7 +212,7 @@ class Board:
             self.log(f"{user.username} get out of jail.\n")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
-            self.print_dice(user, dice_one + dice_two)
+            # self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
@@ -262,7 +262,7 @@ class Board:
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one + dice_two)
+        # self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 

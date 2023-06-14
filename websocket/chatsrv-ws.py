@@ -12,7 +12,8 @@ import sys
 from client import MonopolyClient
 
 
-port = 1895
+port = 1256
+
 class Chat:
     def __init__(self):
         self.buf = []
@@ -58,7 +59,7 @@ class WRAgent(Thread):
         Thread.__init__(self)
 
     def run(self):
-        print("started new agent")
+        # print("started new agent")
         oldmess = self.chat.getmessages()
         self.current += len(oldmess)
         self.conn.send('*'.join([i for i in oldmess]))
@@ -71,7 +72,7 @@ class WRAgent(Thread):
             self.current += len(oldmess)
             try:
                 resp  ='*'.join([i for i in oldmess])
-                print("sending respo: ", resp)
+                # print("sending respo: ", resp)
                 self.conn.send(resp)
             except:
                 notexit = False
@@ -107,9 +108,9 @@ if len(sys.argv) != 2:
 
 
 def serveconnection(sc):
-    print("started")
+    # print("started")
     board_name = sc.recv(1024)
-    print("board_name", board_name)
+    # print("board_name", board_name)
     if not chat_rooms.keys().__contains__(board_name):
         chat_rooms[board_name] = Chat()
     cr = chat_rooms[board_name]
@@ -121,7 +122,7 @@ def serveconnection(sc):
         inp = sc.recv(1024)
         while inp:
 
-            print(inp)
+            # print(inp)
             ty = inp.split(",")[0]
             if ty == "n":
                 cr.newmessage(" ".join(inp.split(",")[1:]))
@@ -155,20 +156,20 @@ def serveconnection(sc):
                     log = False
                 if log:
                     token_response = response.decode()
-                    print("sending: " + "l&" + token_response)
+                    # print("sending: " + "l&" + token_response)
                     cr.newmessage("l&" + token_response)
-                    print("sending board state request")
+                    # print("sending board state request")
                     response = client.send_command(command_details[2], "state", board_name)
-                    print("recieved response ", response.decode())
+                    # print("recieved response ", response.decode())
                     cr.save_state("s&" + response.decode())
                 else:
-                    print("sending: " + "s&" + response.decode())
+                    # print("sending: " + "s&" + response.decode())
                     cr.save_state("s&" + response.decode())
                 client.close()
 
-            print('waiting next')
+            # print('waiting next')
             inp = sc.recv(1024)
-        print('client is terminating')
+        # print('client is terminating')
         sc.close()
     except websockets.exceptions.ConnectionClosed:
         sc.close()
@@ -182,5 +183,5 @@ PORT = int(sys.argv[1])
 chatroom = Chat()
 
 with serve(lambda nc: serveconnection(nc), host=HOST, port=PORT, logger=logging.getLogger("chatsrv")) as server:
-    print("serving")
+    print("websocket server is started.")
     server.serve_forever()

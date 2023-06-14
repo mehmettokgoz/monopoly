@@ -13,7 +13,7 @@ class MonopolyClient:
         self.sock.connect(("127.0.0.1", port))
 
     def send_command(self, token, command, *args):
-        print("now sending...")
+        # print("now sending...")
         s = None
         if command == "new":
             s = NewBoardCodec(token=token, name=args[0], path=args[1]).encode()
