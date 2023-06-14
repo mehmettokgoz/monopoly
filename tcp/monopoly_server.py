@@ -164,9 +164,9 @@ class AgentBoard:
         move = self.curr_move
         self.curr_move = None
         if move == "teleport" or move == "pick":
-            board.turn(self.user, move, self.curr_args)
+            board.turn(self.user, move, self.cond, self.curr_args)
         elif move == "jail-free":
-            board.turn(self.user, move, "y")
+            board.turn(self.user, move, self.cond, "y")
         elif move == "not":
             return
         else:
