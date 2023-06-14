@@ -12,6 +12,7 @@ import sys
 from client import MonopolyClient
 
 
+port = 1576
 class Chat:
     def __init__(self):
         self.buf = []
@@ -125,7 +126,7 @@ def serveconnection(sc):
             if ty == "n":
                 cr.newmessage(" ".join(inp.split(",")[1:]))
             else:
-                client = MonopolyClient(1234)
+                client = MonopolyClient(port)
                 command_details = inp.split(",")
                 response = b''
                 log = True

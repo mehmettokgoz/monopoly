@@ -69,7 +69,7 @@ class Board:
             self.turncbs[user.username] = turncb
             self.status[user.username] = False
             print("Now attaching: ", threading.current_thread().ident)
-            self.log(user.username + " is attached to the board.")
+            #self.log(user.username + " is attached to the board.")
             print(self.users)
             for a in self.users:
                 print(a.username)
@@ -88,7 +88,7 @@ class Board:
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
             self.callbacks.pop(user.username)
-            self.log(user.username + " is detached from the board.")
+            #self.log(user.username + " is detached from the board.")
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -96,9 +96,9 @@ class Board:
             self.user_positions[user.username] = 0
             self.user_amounts[user.username] = self.startup_money
             self.jail_free_cards[user.username] = 0
-            self.log(user.username + " is ready.")
+            #self.log(user.username + " is ready.")
 
-    def turn(self, user, command, *args):
+    def turn(self, user, command, cond: Condition, *args):
         cell = self.cells[self.user_positions[user.username]]
         if command == "dice":
             self.dice(user)
@@ -116,6 +116,7 @@ class Board:
             self.teleport(user, args[0])
         elif command == "pick":
             self.pick_chance_card(user, args[0])
+        print("finished turn function, notifying logs.")
 
     def get_user_state(self, user):
         # TODO: Generate a report for each user, money and properties with their levels
@@ -161,6 +162,7 @@ class Board:
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
         self.print_dice(user, dice_one + dice_two)
+        self.log(f"{user.username} is diced {(dice_one + dice_two) % len(self.cells) } and now at {self.user_positions[user.username]}")
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
             self.run_available(False)
@@ -427,7 +429,7 @@ class Board:
             if self.status[user.username] is False:
                 self.log("All users should marked as ready.")
                 return
-        self.log("Game is started!")
+        #self.log("Game is started!")
         self.is_started = True
         # main game loop
         # Make this thread
