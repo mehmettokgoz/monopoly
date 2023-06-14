@@ -176,7 +176,7 @@ class Board:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
 
-            # self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
+            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
 
             log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
             if self.cells[self.user_positions[user.username]]['type'] == "property":
@@ -186,6 +186,8 @@ class Board:
             # self.log(log_string)
 
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
+            if cell["type"] == "chance_card":
+                self.log(f"{user.username} is at chance card")
             if cell["type"] != "jail":
                 self.run_available(False)
         else:
@@ -195,6 +197,7 @@ class Board:
         # implements bailing user out of jail if s/he has enough money.
         if self.user_amounts[user.username] > self.jailbail_cost:
             self.user_amounts[user.username] -= self.jailbail_cost
+            self.log(f"{user.username} get out of jail by bail.\n")
             self.jail_free(user, "y")
         else:
             self.log(f"{user.username} does not have required money to bail jail.\n")
@@ -355,10 +358,14 @@ class Board:
         # If the turn is on the user and s/he is not at the jail, offer the dice
         if first_time and self.cells[self.user_positions[user.username]]["type"] != "jail":
             self.curr_options = ['dice']
+            self.log(
+                f"{user.username} can dice.")
             self.turncbs[self.users[self.curr_user].username](self, ['dice'])
             return
         commands = []
         if self.cells[self.user_positions[user.username]]["type"] == "jail":
+            self.log(
+                f"{user.username} is at jail.")
             # Offer to user jail-free card if user has one
             if self.jail_free_cards[user.username] != 0:
                 commands.append("jail-free")
@@ -367,6 +374,8 @@ class Board:
             # Offer pay the penalty and get out of jail
             commands.append("bail")
         elif self.cells[self.user_positions[user.username]]["type"] == "property":
+            self.log(
+                f"{user.username} is at {self.cells[self.user_positions[user.username]]['name']} property")
             # If owner is the current user, offer to upgrade
             if self.cells[self.user_positions[user.username]]["owner"] == user.username:
                 commands.append("upgrade")
@@ -378,11 +387,15 @@ class Board:
                 self.pay_rent(user)
                 return
         elif self.cells[self.user_positions[user.username]]["type"] == "teleport":
+            self.log(
+                f"{user.username} is at teleport.")
             commands.append("teleport")
         elif self.cells[self.user_positions[user.username]]["type"] == "tax":
             self.pay_tax(user)
             return
         elif self.cells[self.user_positions[user.username]]["type"] == "start":
+            self.log(
+                f"{user.username} passed start.")
             return
         elif self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
@@ -390,18 +403,19 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
-            #self.log(f"[chance card: {chance_card}]\n")
+            self.log(
+                f"{user.username} is pulled chance card {chance_card}")
             commands = self.handle_chance_card(chance_card)
             if len(commands) == 0:
                 return
         else:
+            self.log(
+                f"{user.username} can dice.")
             commands.append("dice")
         # self.log(str(commands))
         if "buy" in commands or "upgrade" in commands:
             commands.append("not")
         self.curr_options = commands
-        self.log(
-            f"{self.curr_user} is diced and now at somewhere.")
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
     def game_loop(self):
