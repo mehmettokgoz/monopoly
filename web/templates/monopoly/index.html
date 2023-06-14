@@ -166,7 +166,7 @@
                             </tr>
                             {% endfor %}
                             {% else %}
-                            <h2 style="font-weight:normal;">No user is attached yet.</h2>
+                            <h2 id="no_user_info" style="font-weight:normal;">No user is attached yet.</h2>
                             {% endif %}
                         </table>
 
@@ -266,6 +266,10 @@
                 console.log("response: ", response)
                 var board_state = JSON.parse(response[0].split("&")[1])
                 console.log("STATE IS ARRIVED. NEED TO UPDATE THE TABLE.",board_state)
+
+                if (board_state["users"].length !== 0) {
+                    document.getElementById("no_user_info").innerHTML = "";
+                }
                 
                 // user table change
                 table = document.getElementById('user_table')
@@ -301,19 +305,21 @@
                     var cell2 = row.insertCell(1);
                     cell1.innerHTML = user.username;
                     cell2.innerHTML = user.money;
-                }
-                // console.log(document.getElementById("username").innerHTML, document.getElementById("current_user").innerHTML, document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML)
-                if (document.getElementById("username").innerHTML === document.getElementById("current_user").innerText) {
-                    console.log("adding options.")
-                    option_buttons = document.getElementById("option_buttons");
+
+
+                    // console.log(document.getElementById("username").innerHTML, document.getElementById("current_user").innerHTML, document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML)
                     option_buttons.innerHTML = ""
-                    for (option_index in board_state["options"]) {
-                        var option = board_state["options"][option_index]
-                        option_buttons.innerHTML += '<input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value=' + option + ' id= ' + option + ' >'
-                        console.log("option: ",option);
+                    if (document.getElementById("username").innerHTML === board_state["current_user"]) {
+                        console.log("adding options.")
+                        option_buttons = document.getElementById("option_buttons");
+                        for (option_index in board_state["options"]) {
+                            var option = board_state["options"][option_index]
+                            option_buttons.innerHTML += '<input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value=' + option + ' id= ' + option + ' >'
+                            console.log("option: ",option);
+                        }
+                    } else {
+                        console.log("couldn't update options")
                     }
-                } else {
-                    console.log("couldn't update options")
                 }
 
                 for (var cell_index in board_state["cells"]) {
