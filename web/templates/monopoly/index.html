@@ -263,6 +263,8 @@
 
                 if (board_state["curr_chance_card"]) {
                     document.getElementById("curr_chance_card").innerHTML = "Selected Chance Card: " + board_state["curr_chance_card"];
+                } else {
+                    document.getElementById("curr_chance_card").innerHTML = "";
                 }
 
                 if (board_state["game_over"] !== "") {
