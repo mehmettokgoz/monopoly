@@ -29,15 +29,19 @@
 
     <input type="hidden" id="token" name="token" value="{{ token }}">
     <div style="display:flex; width:90%; margin-left:auto;margin-right:auto;flex-direction:column;gap:20px;padding-top:10px;">
-        <div style="font-family:'Gill Sans'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0);">
-            <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
-            <div style="display:flex;gap:10px;font-size:18px;">
-                <div style="display:flex;justify-content:center;align-items:center;margin:0;">username: <p id="username">{{username}}</p> </div>
-                <a href="/user/{{username}}"><button style="padding:10px;height:50%;text-align:center;">Profile</button></a>
-                <a href="/logout"><button style="padding:10px;height:50%;text-align:center;">Logout</button></a>
-
+            <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:space-between;stroke-width:3;stroke:rgb(0,0,0)">
+                <a href="/">
+                    <img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval">
+                </a>
+                <div style="display:flex;gap:10px; font-size:15px;">
+                    <div style="display:flex;justify-content:center;align-items:center;margin:0;">
+                        username: <p id="username">{{username}}</p>
+                    </div>
+                    <a href="/logout">
+                        <button style="padding:10px;font-size:18px;height:100%;">Logout</button>
+                    </a>
+                </div>
             </div>
-        </div>
 
         <div style="display:flex; flex-direction: row; width:100%; justify-content:space-between;">
             <div style="width:70%;display:flex;justify-content:center;">
@@ -123,15 +127,21 @@
 
             <div style="font-family: 'Gill Sans', sans-serif;width:30%; display: flex; flex-direction: column;">
 
-                <h2>Board <p id="board_name">{{name}}</p></h2>
+                <div style="display:flex;text-align: center; vertical-align: center;font-size:30px;margin:0;padding:0;font-weight: bold;">
+                    <div id="status" style="background-color: #ffa0a0;width:20px;height: 20px;border-radius: 100%;margin-top:auto;margin-bottom:auto;"></div>
+                    <p style="margin:0;padding:0;">Board: </p>
+                    <p style="margin:0;padding:0;" id="board_name"> {{name}}</p>
+                </div>
                 <div>
                     <h2 id="winner"></h2>
 
-                    <div style="width:300px;display:inline-block;vertical-align:top">
-                        <div id="status" style="background-color: #ffa0a0;">not connected</div>
-                    </div>
-                    <div style="width:400px; display:inline-block; vertical-align:top">
-                        <div id="messages_scroll_bar" style="height: 100px; overflow:scroll;">
+
+
+
+                    <div style="width:400px; display:inline-block; vertical-align:top;">
+                        <h2 style="margin:0; padding:0; margin-bottom:20px; ">Notifications</h2>
+                        <div id="messages_scroll_bar" style="height: 100px; overflow:scroll; border:1px; border-style: solid;padding:5px;">
+
                             <ul id='messagelist'>
                             </ul>
                         </div>
@@ -156,11 +166,13 @@
                             {% endfor %}
                             {% endif %}
                             <h2 id="no_user_info" style="font-weight:normal;">No user is attached yet.</h2>
+
                         </table>
 
 
                         <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
-                            <h2 style="margin:0; padding:0;">Current user:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="current_user">{{current_user}}</h2>
+                            <h2 id="current_user_headline" style="margin:0; padding:0;">Current user: </h2>
+                            <h2 style="margin:0; padding:0;font-weight:normal" id="current_user">{{current_user}}</h2>
                         </div>
 
 
@@ -169,7 +181,7 @@
                         </div>
 
 
-                        <div style="display:flex; flex-direction:row; gap:5px;margin-top:30px;">
+                        <div style="display:flex; flex-direction:row; gap:5px;margin-top:10px;">
                             <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendReady()" value="Ready">
                             <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendDetach()" value="Detach">
                             <input style="width:45%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendAttach()" value="Attach">
@@ -185,7 +197,7 @@
 
                                 <h2>Options</h2>
                                 {% if 'dice' not in options or 'buy' not in options %}
-                                <div style="padding: 8px;">Current selected cell: </div>
+
                                 <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
                                 {% endif %}
                                 <div id="option_buttons">
@@ -281,6 +293,7 @@
                 if (board_state["current_user"] !== "") {
                     console.log("now we will update current user div.")
                     document.getElementById("current_user").innerText = board_state["current_user"]
+                    document.getElementById("current_user_headline").setAttribute("style", "margin:0; padding:0;visibility: visible;")
                 } else {
                     console.log("current user is null")
                 }
@@ -381,22 +394,23 @@
                         this.socket.close();
 
                     var socket = new WebSocket('ws://' + this.ipport);
+
                     socket.onopen = function() {
                         // send id list for notifications
-                        status.textContent = 'Connected to Websocket.';
+
                         var token = document.getElementById("token").value;
                         var boardName = document.getElementById("board_name").innerText
                         socket.send(boardName)
                         socket.send("state,"+boardName+","+token)
-                        status.setAttribute('style','background-color: #a0ffa0');
+                        status.setAttribute('style','background-color: #a0ffa0;width:20px;height: 20px;border-radius: 100%;margin-top:auto;margin-bottom:auto;');
                     }
                     socket.onerror = function() {
-                        status.textContent = 'Connection failed';
-                        status.setAttribute('style','background-color: #ffa0a0');
+                        status.setAttribute('style','background-color: purple;width:20px;height: 20px;border-radius: 100%;margin-top:auto;margin-bottom:auto;');
+                        //status.setAttribute('style','background-color: #ffa0a0');
                     }
                     socket.onclose = function() {
-                        status.textContent = 'Connection closed';
-                        status.setAttribute('style','background-color: #ffa0a0');
+                        status.setAttribute('style','background-color: blue;width:20px;height: 20px;border-radius: 100%;margin-top:auto;margin-bottom:auto;');
+                        //status.setAttribute('style','background-color: #ffa0a0');
                         ws.socket = undefined;
                         setTimeout(() => {
                             if (! ws.socket ) {

@@ -290,12 +290,15 @@ def create_template(request):
     for i in context["templates"]:
         new_dict[i] = os.path.abspath("./assets") + "/" + i
     context["templates2"] = new_dict.items()
+    context["username"] = request.COOKIES.get("username")
     # print(new_dict)
     return render(request, "monopoly/create-board.html", context)
 
 
 def upload_template(request):
-    return render(request, "monopoly/upload-board.html", {})
+    context = {}
+    context["username"] = request.COOKIES.get("username")
+    return render(request, "monopoly/upload-board.html", context)
 
 
 def simple_upload(request):
