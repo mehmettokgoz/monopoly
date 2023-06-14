@@ -170,12 +170,10 @@
                         </table>
 
 
-
-                        {% if current_user != "" %}
                         <div style="display:flex; flex-direction:row; gap:5px;margin-top:20px;">
                             <h2 style="margin:0; padding:0;">Current user:</h2> <h2 style="margin:0; padding:0;font-weight:normal" id="current_user">{{current_user}}</h2>
                         </div>
-                        {% endif %}
+
 
                         {% if curr_chance_card != None %}
 
@@ -195,8 +193,6 @@
                         </div>
 
 
-                        {% if current_user == username %}
-
                         <div style="margin-top:20px;">
 
                             <div style="display:flex; flex-direction:column; gap:10px;;">
@@ -207,14 +203,12 @@
                                 <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
                                 {% endif %}
                                 <div id="option_buttons">
-                                    {% for option in options %}
-                                    <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value={{option}} id={{option}} >
-                                    {% endfor %}
+
                                 </div>
                             </div>
                         </div>
 
-                        {% endif %}
+
                     </div>
 
 
@@ -234,12 +228,6 @@
 
             };
 
-
-            if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
-                setTimeout(function(){
-                    window.location.reload(1);
-                }, 20000);
-            }
 
 
         </script>
@@ -284,6 +272,14 @@
 
                 table.innerHTML = "";
                 user_positions.innerHTML = ""
+
+                if (board_state["current_user"] !== "") {
+                    console.log("now we will update current user div.")
+                    document.getElementById("current_user").innerText = board_state["current_user"]
+                } else {
+                    console.log("current user is null")
+                }
+
                 for (var user_index in board_state["users"]) {
                     var user = board_state["users"][user_index];
                     
@@ -306,7 +302,8 @@
                     cell2.innerHTML = user.money;
                 }
                 // console.log(document.getElementById("username").innerHTML, document.getElementById("current_user").innerHTML, document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML)
-                if (document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML) {
+                if (document.getElementById("username").innerHTML === document.getElementById("current_user").innerText) {
+                    console.log("adding options.")
                     option_buttons = document.getElementById("option_buttons");
                     option_buttons.innerHTML = ""
                     for (option_index in board_state["options"]) {
@@ -314,6 +311,8 @@
                         option_buttons.innerHTML += '<input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value=' + option + ' id= ' + option + ' >'
                         console.log("option: ",option);
                     }
+                } else {
+                    console.log("couldn't update options")
                 }
 
                 for (var cell_index in board_state["cells"]) {
@@ -353,7 +352,7 @@
                 var selected_cell = document.getElementById("cell").value
                 console.log(option, selected_cell)
                 var board_name = document.getElementById("board_name").innerText;
-                ws.socket.send("command,"+option+","+token+","+selected_cell);
+                ws.socket.send("command,"+option+","+token+","+selected_cell+","+board_name);
             }
 
 

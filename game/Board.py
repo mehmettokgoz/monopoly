@@ -162,7 +162,6 @@ class Board:
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
         self.print_dice(user, dice_one + dice_two)
-        self.log(f"{user.username} is diced {(dice_one + dice_two) % len(self.cells) } and now at {self.user_positions[user.username]}")
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
             self.run_available(False)
@@ -391,14 +390,18 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
-            self.log(f"[chance card: {chance_card}]\n")
+            #self.log(f"[chance card: {chance_card}]\n")
             commands = self.handle_chance_card(chance_card)
             if len(commands) == 0:
                 return
         else:
             commands.append("dice")
         # self.log(str(commands))
+        if "buy" in commands or "upgrade" in commands:
+            commands.append("not")
         self.curr_options = commands
+        self.log(
+            f"{self.curr_user} is diced and now at somewhere.")
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
     def game_loop(self):
@@ -416,7 +419,7 @@ class Board:
             if len(self.users) == 1:
                 # self.log("GAME OVER! \n")
                 self.game_over = self.users[0].username
-                self.log(f"{self.users[0].username} WON THE GAME\n")
+                #self.log(f"{self.users[0].username} WON THE GAME\n")
                 self.curr_user = -1
                 break
             elif self.curr_user == len(self.users):

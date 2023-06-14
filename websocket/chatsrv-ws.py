@@ -12,7 +12,7 @@ import sys
 from client import MonopolyClient
 
 
-port = 1576
+port = 1891
 class Chat:
     def __init__(self):
         self.buf = []
@@ -130,26 +130,36 @@ def serveconnection(sc):
                 command_details = inp.split(",")
                 response = b''
                 log = True
+                board_name = ""
                 if command_details[0] == "open":
                     response = client.send_command(command_details[2], "open", command_details[1])
+                    board_name = command_details[1]
                 elif command_details[0] == "ready":
                     response = client.send_command(command_details[2], "ready", command_details[1])
+                    board_name = command_details[1]
                 elif command_details[0] == "start":
                     response = client.send_command(command_details[2], "start", command_details[1])
+                    board_name = command_details[1]
                 elif command_details[0] == "close":
                     response = client.send_command(command_details[2], "close", command_details[1])
+                    board_name = command_details[1]
                 elif command_details[0] == "start":
                     response = client.send_command(command_details[2], "start", command_details[1])
+                    board_name = command_details[1]
                 elif command_details[0] == "command":
                     response = client.send_command(command_details[2], "command", command_details[1], command_details[3])
+                    board_name = command_details[4]
                 elif command_details[0] == "state":
                     response = client.send_command(command_details[2], "state", command_details[1])
+                    board_name = command_details[1]
                     log = False
                 if log:
                     token_response = response.decode()
                     print("sending: " + "l&" + token_response)
                     cr.newmessage("l&" + token_response)
-                    response = client.send_command(command_details[2], "state", command_details[1])
+                    print("sending board state request")
+                    response = client.send_command(command_details[2], "state", board_name)
+                    print("recieved response ", response.decode())
                     cr.save_state("s&" + response.decode())
                 else:
                     print("sending: " + "s&" + response.decode())

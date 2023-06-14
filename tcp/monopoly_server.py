@@ -155,8 +155,6 @@ class AgentBoard:
                 return f"Board {s.name} is not present."
 
     def turncb(self, board: Board, options):
-        if "buy" in options or "upgrade" in options:
-            options.append("not")
         self.options = options
         # Wait for client to request the options and send an answer, when an answer is recieved this will released.
         while self.curr_move is None:
