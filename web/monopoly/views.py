@@ -1,11 +1,13 @@
 import datetime
 import json
+import os
 import random
 import socket
 from threading import Condition, Lock, Thread
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
@@ -15,7 +17,7 @@ from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1891
+port = 1895
 
 
 def index(request, board_name):
@@ -211,19 +213,22 @@ def logout(request):
 def new_board(request):
     board_json = request.POST['json_board']
     name = request.POST['name']
+    print(request.POST)
 
     # TODO: Pull list data here from server
     context = {}
+    if name != '' and board_json != '':
+        token = request.COOKIES.get('token')
+        client = MonopolyClient(port)
+        if token is not None:
+            response = client.send_command(token, "new", name, board_json)
+            client.close()
 
-    token = request.COOKIES.get('token')
-    client = MonopolyClient(port)
-    if token is not None:
-        response = client.send_command(token, "new", name, board_json)
-        client.close()
-
-        return HttpResponseRedirect("/")
+            return HttpResponseRedirect("/")
+        else:
+            return HttpResponseRedirect("/login")
     else:
-        return HttpResponseRedirect("/login")
+        return HttpResponseRedirect("/")
 
 
 def ready(request, board_name):
@@ -280,4 +285,26 @@ def start(request, board_name):
 
 def create_template(request):
     context = {}
+    context["templates"] = (os.listdir(os.path.abspath("./assets")))
+    new_dict = {}
+    for i in context["templates"]:
+        new_dict[i] = os.path.abspath("./assets") + "/" + i
+    context["templates2"] = new_dict.items()
+    print(new_dict)
     return render(request, "monopoly/create-board.html", context)
+
+
+def upload_template(request):
+    return render(request, "monopoly/upload-board.html", {})
+
+
+def simple_upload(request):
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        fs = FileSystemStorage()
+        filename = fs.save(myfile.name, myfile)
+        uploaded_file_url = fs.url(filename)
+        print(uploaded_file_url)
+        print(filename)
+        return HttpResponseRedirect("/")
+    return HttpResponseRedirect("/")
