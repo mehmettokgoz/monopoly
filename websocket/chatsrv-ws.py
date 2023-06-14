@@ -12,7 +12,7 @@ import sys
 from client import MonopolyClient
 
 
-port = 1568
+port = 1895
 class Chat:
     def __init__(self):
         self.buf = []
