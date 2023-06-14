@@ -15,7 +15,7 @@ from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1567
+port = 1234
 
 
 def index(request, board_name):

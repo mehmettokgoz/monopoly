@@ -124,13 +124,9 @@
                         {% endif %}
                     </g>
                     {% endfor %}
-                    {% for key, values in user_positions.items %}
-                    <g>
-                        <circle cx={{values.0}} cy={{values.1}} r="15" stroke="black" stroke-width="3" fill="gray"/>
-                        <text x={{values.0}} y={{values.1}} text-anchor="middle"  stroke-width="2px" dy=".3em">{{key.0}}</text>
+                    <g id="user_positions">
+                        
                     </g>
-
-                    {% endfor %}
                 </svg>
             </div>
 
@@ -152,7 +148,7 @@
 
                         <h2>Users</h2>
 
-                        <table style="width:100%;" id="user_table">
+                        <table style="width:100%; background-color: transparent; border: 1px solid black;" id="user_table">
                             {% if users %}
                             <tr>
                                 <th>Username</th>
@@ -210,10 +206,11 @@
                                 <div style="padding: 8px;">Current selected cell: </div>
                                 <input type="text" style="padding: 6px; border-radius:5px;text-align: center;" name="selected_cell" id="cell">
                                 {% endif %}
-                                {% for option in options %}
-                                <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value={{option}} id={{option}} >
-                                {% endfor %}
-
+                                <div id="option_buttons">
+                                    {% for option in options %}
+                                    <input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value={{option}} id={{option}} >
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
 
@@ -241,13 +238,31 @@
             if (document.getElementById("username").innerHTML != document.getElementById("current_user").innerHTML) {
                 setTimeout(function(){
                     window.location.reload(1);
-                }, 2000);
+                }, 20000);
             }
 
 
         </script>
 
         <script>
+            var cell_svg_locations = []
+            let size = 8;
+            let base = 100;
+            for (let i = 0; i < 8; i++) {
+                cell_svg_locations.push({"x": i * base, "y": 0});
+            }
+            for (let i = 1; i < 8; i++) {
+                cell_svg_locations.push({"x": (size - 1) * base, "y": i * base});
+            }
+            for (let i = size - 2; i > -1; i--) {
+                cell_svg_locations.push({"x": i * base, "y": (size - 1) * base});
+            }
+            for (let i = size - 2; i > 0; i--) {
+                cell_svg_locations.push({"x": 0, "y": i * base});
+            }
+            
+            console.log(cell_svg_locations)
+
             function sendenter(e, f) {
                 if (e.keyCode == 13) { f();}
                 return false;
@@ -257,21 +272,57 @@
                 ws.socket.send(el.value);
                 el.value = "";
             }
-
+            
             function updateStatistics(response) {
+                console.log("response: ", response)
                 var board_state = JSON.parse(response[0].split("&")[1])
                 console.log("STATE IS ARRIVED. NEED TO UPDATE THE TABLE.",board_state)
+                
+                // user table change
+                table = document.getElementById('user_table')
+                user_positions = document.getElementById('user_positions')
 
+                table.innerHTML = "";
+                user_positions.innerHTML = ""
+                for (var user_index in board_state["users"]) {
+                    var user = board_state["users"][user_index];
+                    
+                    // change position
+                    var position = cell_svg_locations[board_state["user_positions"][user.username]];
+                    var x = position.x + 50;
+                    var y = position.y + 50;
+                    user_positions.innerHTML += 
+                    "<g>" +
+                        '<circle cx="' + x + '" cy="' + y + '" r="15" stroke="black" stroke-width="3" fill="gray"/>' +
+                        '<text x="' + x + '" y="' + y + '" text-anchor="middle"  stroke-width="2px" dy=".3em">'+ user.username[0] + '</text>' +
+                    "</g>"
 
-                for (var user in board_state["users"]) {
-                    table = document.getElementById('user_table')
+                    // fill table
                     var row = table.insertRow();
                     var cell1 = row.insertCell(0);
+                    cell1.style.padding = "10px";
                     var cell2 = row.insertCell(1);
                     cell1.innerHTML = user.username;
                     cell2.innerHTML = user.money;
                 }
+                // console.log(document.getElementById("username").innerHTML, document.getElementById("current_user").innerHTML, document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML)
+                if (document.getElementById("username").innerHTML === document.getElementById("current_user").innerHTML) {
+                    option_buttons = document.getElementById("option_buttons");
+                    option_buttons.innerHTML = ""
+                    for (option_index in board_state["options"]) {
+                        var option = board_state["options"][option_index]
+                        option_buttons.innerHTML += '<input style="width:100%; padding:6px; border-radius:5px; font-size:15px; background-color:#f5f6fa" type="submit" onclick="sendCommand(this.value)" name="option" value=' + option + ' id= ' + option + ' >'
+                        console.log("option: ",option);
+                    }
+                }
 
+                for (var cell_index in board_state["cells"]) {
+                    var cell = board_state["cells"][cell_index];
+                    if (cell["type"] === "property") {
+                        document.getElementById(cell_index).getElementsByTagName("text")[1].innerHTML = cell["price"] + "$";
+                        document.getElementById(cell_index).getElementsByTagName("text")[2].innerHTML = "Level " + cell["level"];
+                    }
+                }
             }
 
             function sendAttach() {
