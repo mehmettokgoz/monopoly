@@ -45,8 +45,10 @@ class AgentBoard:
 
     def __init__(self, name, password):
         self.m = Lock()
-        self.logs = ["This is sample log."]
+        self.n = Lock()
+        self.logs = []
         self.c = Condition(self.m)
+        self.cond = Condition(self.n)
         self.user = User(name, name, name, password)
         self.token = self.user.get_token()
 
@@ -62,7 +64,18 @@ class AgentBoard:
             self.c.acquire()
             self.c.notify_all()
             self.c.release()
-            return self.logs[-1]
+            self.logs = []
+            while self.logs.__len__() == 0:
+                print("waiting for logs")
+                self.cond.acquire()
+                self.cond.wait()
+                self.cond.release()
+            log = "*".join(self.logs)
+
+            print("all logs: ", self.logs)
+            print("log returning: ", log)
+            self.logs = []
+            return log
         elif opcode == "start":
             with block:
                 s = StartGameCodec().decode(req)
@@ -159,12 +172,16 @@ class AgentBoard:
         elif move == "not":
             return
         else:
-            board.turn(self.user, move)
+            board.turn(self.user, move, self.cond)
 
     def log(self, log):
         # Send log to client
-        print(log)
+        print("logging: ",log)
         self.logs.append(log)
+        self.cond.acquire()
+        self.cond.notify_all()
+        self.cond.release()
+        print("releasing condition")
 
 
 class Agent:
@@ -219,6 +236,7 @@ class Agent:
     def log(self, log):
         # Send log to client
         self.sock.send(log.encode())
+
 
 
 class MonopolyServer:
