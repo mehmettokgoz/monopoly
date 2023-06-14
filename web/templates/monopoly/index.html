@@ -58,19 +58,14 @@
                         <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                        {% if cell.owner != None %}
-                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                        {% endif %}
-
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black"></text>
                         {% elif cell.direction == "right" %}
                         <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
                         <rect x={{cell.location.0}} y={{cell.location.1}} width={{20}} height={{base}} fill={{cell.color}} style="stroke-width:2;stroke:rgb(0,0,0)"/>
                         <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})"  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                        {% if cell.owner != None %}
-                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                        {% endif %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}} transform="rotate(-90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black"></text>
 
                         {% elif cell.direction == "left" %}
                         <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
@@ -78,9 +73,7 @@
                         <text x={{cell.text_location.0}} y={{cell.text_location.1}} transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level {{cell.level}}</text>
-                        {% if cell.owner != None %}
-                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                        {% endif %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  transform="rotate(90, {{cell.text_location.0}}, {{cell.text_location.1}})" alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black"></text>
 
                         {% else %}
                         <rect x={{cell.location.0}} y={{cell.location.1}} width={{base}} height={{base}} fill="#cde6d1" style="stroke-width:3;stroke:rgb(0,0,0)" />
@@ -88,9 +81,7 @@
                         <text x={{cell.text_location.0}} y={{cell.text_location.1}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000" text-anchor="middle"  font-family="Gill Sans" fill="black">{{cell.name}}</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"20"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.price}}$</text>
                         <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"35"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">Level: {{cell.level}}</text>
-                        {% if cell.owner != None %}
-                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black">{{cell.owner}}</text>
-                        {% endif %}
+                        <text x={{cell.text_location.0|add:"-20"}} y={{cell.text_location.1|add:"50"}}  alignment-baseline="middle" font-size="14" stroke-width="0" stroke="#000"  font-family="Gill Sans" fill="black"></text>
 
                         {% endif %}
                         {% elif cell.type == "station" %}
@@ -165,9 +156,8 @@
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% else %}
-                            <h2 id="no_user_info" style="font-weight:normal;">No user is attached yet.</h2>
                             {% endif %}
+                            <h2 id="no_user_info" style="font-weight:normal;">No user is attached yet.</h2>
                         </table>
 
 
@@ -327,6 +317,10 @@
                     if (cell["type"] === "property") {
                         document.getElementById(cell_index).getElementsByTagName("text")[1].innerHTML = cell["price"] + "$";
                         document.getElementById(cell_index).getElementsByTagName("text")[2].innerHTML = "Level " + cell["level"];
+                        if (cell["owner"]) {
+                            console.log(cell["owner"])
+                            document.getElementById(cell_index).getElementsByTagName("text")[3].innerHTML = cell["owner"];
+                        }
                     }
                 }
             }
