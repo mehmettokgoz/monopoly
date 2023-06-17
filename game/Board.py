@@ -61,18 +61,18 @@ class Board:
 
     def attach(self, user, callback, turncb):
         if not self.is_started:
-            print(self.users)
-            for a in self.users:
-                print(a.username)
+            # print(self.users)
+            # for a in self.users:
+            #    print(a.username)
             self.users.append(user)
             self.callbacks[user.username] = callback
             self.turncbs[user.username] = turncb
             self.status[user.username] = False
-            print("Now attaching: ", threading.current_thread().ident)
-            self.log(user.username + " is attached to the board.")
-            print(self.users)
-            for a in self.users:
-                print(a.username)
+            # print("Now attaching: ", threading.current_thread().ident)
+            #self.log(user.username + " is attached to the board.")
+            # print(self.users)
+            # for a in self.users:
+            #    print(a.username)
         else:
             callback("The game is started, you can not join as player.")
 
@@ -88,7 +88,7 @@ class Board:
             self.status.pop(user.username)
             self.turncbs.pop(user.username)
             self.callbacks.pop(user.username)
-            self.log(user.username + " is detached from the board.")
+            #self.log(user.username + " is detached from the board.")
 
     def ready(self, user):
         if self.is_user_present(user.username):
@@ -96,9 +96,9 @@ class Board:
             self.user_positions[user.username] = 0
             self.user_amounts[user.username] = self.startup_money
             self.jail_free_cards[user.username] = 0
-            self.log(user.username + " is ready.")
+            #self.log(user.username + " is ready.")
 
-    def turn(self, user, command, *args):
+    def turn(self, user, command, cond: Condition, *args):
         cell = self.cells[self.user_positions[user.username]]
         if command == "dice":
             self.dice(user)
@@ -116,6 +116,7 @@ class Board:
             self.teleport(user, args[0])
         elif command == "pick":
             self.pick_chance_card(user, args[0])
+        # print("finished turn function, notifying logs.")
 
     def get_user_state(self, user):
         # TODO: Generate a report for each user, money and properties with their levels
@@ -138,8 +139,8 @@ class Board:
                 user_serialized.append({"username": user.username, "money": self.user_amounts[user.username]})
             except:
                 user_serialized.append({"username": user.username, "money": 0})
-        print(self.curr_user)
-        print(self.users)
+        # print(self.curr_user)
+        # print(self.users)
         if self.curr_user == -1:
             DSA = json.dumps(
                 {"users": user_serialized, "user_positions": self.user_positions, "user_amounts": self.user_amounts,
@@ -160,7 +161,7 @@ class Board:
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one + dice_two)
+        # self.print_dice(user, dice_one + dice_two)
         cell = self.cells[self.user_positions[user.username]]
         if cell["type"] == "jail" and self.jail_free_cards[user.username] != 0:
             self.run_available(False)
@@ -175,7 +176,7 @@ class Board:
             self.user_amounts[user.username] -= self.teleport_cost
             self.user_positions[user.username] = int(arg) % len(self.cells)
 
-            # self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
+            self.log(f"{user.username} is teleported to {self.user_positions[user.username]}\n")
 
             log_string = f"[{user.username}] [cell: {self.cells[self.user_positions[user.username]]['type']}"
             if self.cells[self.user_positions[user.username]]['type'] == "property":
@@ -185,6 +186,8 @@ class Board:
             # self.log(log_string)
 
             cell = self.cells[self.user_positions[self.users[self.curr_user].username]]
+            if cell["type"] == "chance_card":
+                self.log(f"{user.username} is at chance card")
             if cell["type"] != "jail":
                 self.run_available(False)
         else:
@@ -194,6 +197,7 @@ class Board:
         # implements bailing user out of jail if s/he has enough money.
         if self.user_amounts[user.username] > self.jailbail_cost:
             self.user_amounts[user.username] -= self.jailbail_cost
+            self.log(f"{user.username} get out of jail by bail.\n")
             self.jail_free(user, "y")
         else:
             self.log(f"{user.username} does not have required money to bail jail.\n")
@@ -208,7 +212,7 @@ class Board:
             self.log(f"{user.username} get out of jail.\n")
             self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
                 self.cells)
-            self.print_dice(user, dice_one + dice_two)
+            # self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
         else:
@@ -258,7 +262,7 @@ class Board:
         dice_two = random.randint(1, 6)
         self.user_positions[user.username] = (self.user_positions[user.username] + dice_one + dice_two) % len(
             self.cells)
-        self.print_dice(user, dice_one + dice_two)
+        # self.print_dice(user, dice_one + dice_two)
         if self.cells[self.user_positions[self.users[self.curr_user].username]]["type"] != "jail":
             self.run_available(False)
 
@@ -354,10 +358,14 @@ class Board:
         # If the turn is on the user and s/he is not at the jail, offer the dice
         if first_time and self.cells[self.user_positions[user.username]]["type"] != "jail":
             self.curr_options = ['dice']
+            self.log(
+                f"{user.username} can dice.")
             self.turncbs[self.users[self.curr_user].username](self, ['dice'])
             return
         commands = []
         if self.cells[self.user_positions[user.username]]["type"] == "jail":
+            self.log(
+                f"{user.username} is at jail.")
             # Offer to user jail-free card if user has one
             if self.jail_free_cards[user.username] != 0:
                 commands.append("jail-free")
@@ -366,6 +374,8 @@ class Board:
             # Offer pay the penalty and get out of jail
             commands.append("bail")
         elif self.cells[self.user_positions[user.username]]["type"] == "property":
+            self.log(
+                f"{user.username} is at {self.cells[self.user_positions[user.username]]['name']} property")
             # If owner is the current user, offer to upgrade
             if self.cells[self.user_positions[user.username]]["owner"] == user.username:
                 commands.append("upgrade")
@@ -377,11 +387,15 @@ class Board:
                 self.pay_rent(user)
                 return
         elif self.cells[self.user_positions[user.username]]["type"] == "teleport":
+            self.log(
+                f"{user.username} is at teleport.")
             commands.append("teleport")
         elif self.cells[self.user_positions[user.username]]["type"] == "tax":
             self.pay_tax(user)
             return
         elif self.cells[self.user_positions[user.username]]["type"] == "start":
+            self.log(
+                f"{user.username} passed start.")
             return
         elif self.cells[self.user_positions[user.username]]["type"] == "goto_jail":
             self.go_to_jail(user)
@@ -389,13 +403,18 @@ class Board:
         elif self.cells[self.user_positions[user.username]]["type"] == "chance_card":
             chance_card = random.choice(self.chance_card_types)
             self.curr_chance_card = chance_card
-            self.log(f"[chance card: {chance_card}]\n")
+            self.log(
+                f"{user.username} is pulled chance card {chance_card}")
             commands = self.handle_chance_card(chance_card)
             if len(commands) == 0:
                 return
         else:
+            self.log(
+                f"{user.username} can dice.")
             commands.append("dice")
         # self.log(str(commands))
+        if "buy" in commands or "upgrade" in commands:
+            commands.append("not")
         self.curr_options = commands
         self.turncbs[self.users[self.curr_user].username](self, commands)
 
@@ -414,7 +433,7 @@ class Board:
             if len(self.users) == 1:
                 # self.log("GAME OVER! \n")
                 self.game_over = self.users[0].username
-                self.log(f"{self.users[0].username} WON THE GAME\n")
+                #self.log(f"{self.users[0].username} WON THE GAME\n")
                 self.curr_user = -1
                 break
             elif self.curr_user == len(self.users):
@@ -427,7 +446,7 @@ class Board:
             if self.status[user.username] is False:
                 self.log("All users should marked as ready.")
                 return
-        self.log("Game is started!")
+        #self.log("Game is started!")
         self.is_started = True
         # main game loop
         # Make this thread

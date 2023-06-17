@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('board/<slug:board_name>', views.index, name="index"),
     path("", views.list_boards, name="list_boards"),
-    path("login", views.login_view, name="login_view"),
+    path("login/", views.login_view, name="login_view"),
     path("register", views.register_view, name="start"),
     path("signup", views.register_post, name="start"),
     path("auth", views.login_post, name="login_post"),
@@ -16,4 +16,7 @@ urlpatterns = [
     path("detach/<slug:board_name>", views.detach, name="detach"),
     path("attach/<slug:board_name>", views.attach, name="attach"),
     path("start/<slug:board_name>", views.start, name="start"),
+    path("create-template", views.create_template, name="create_template"),
+    path("upload-template", views.upload_template, name="upload_template"),
+    path("simple-upload", views.simple_upload, name="simple_upload")
 ]

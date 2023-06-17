@@ -1,7 +1,7 @@
 # Client class for Monopoly
 import socket
 
-from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
+from protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec, BoardStateCodec, RegisterCodec
 
 

@@ -3,8 +3,8 @@ import base64
 
 
 def decode_opcode(b):
-    print(type(b))
-    print(b)
+    # print(type(b))
+    # print(b)
     req = b.decode().split(",")
 
     if req[0].split(":")[0] == "token":
@@ -26,7 +26,7 @@ class NewBoardCodec:
     def decode(self, b):
         req = b.decode().split(',')
         self.token = req[0].split(":")[1]
-        print(req)
+        # print(req)
         self.name = req[2]
         self.path = req[3]
         return self

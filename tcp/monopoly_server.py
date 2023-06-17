@@ -45,8 +45,10 @@ class AgentBoard:
 
     def __init__(self, name, password):
         self.m = Lock()
-        self.logs = ["This is sample log."]
+        self.n = Lock()
+        self.logs = []
         self.c = Condition(self.m)
+        self.cond = Condition(self.n)
         self.user = User(name, name, name, password)
         self.token = self.user.get_token()
 
@@ -62,14 +64,25 @@ class AgentBoard:
             self.c.acquire()
             self.c.notify_all()
             self.c.release()
-            return self.logs[-1]
+            self.logs = []
+            while self.logs.__len__() == 0:
+                # print("waiting for logs")
+                self.cond.acquire()
+                self.cond.wait()
+                self.cond.release()
+            log = "*".join(self.logs)
+
+            # print("all logs: ", self.logs)
+            # print("log returning: ", log)
+            self.logs = []
+            return log
         elif opcode == "start":
             with block:
                 s = StartGameCodec().decode(req)
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.start_game()
-                    return f"start!"
+                    return f"Game is started at board {s.name}!"
                 return f"Board {s.name} is not present."
         elif opcode == "new":
             with block:
@@ -96,16 +109,16 @@ class AgentBoard:
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.detach(self.user)
-                    return f"{self.user} is detached from board."
+                    return f"{self.user.username} is detached from board."
                 return f"Board {s.name} is not present."
         elif opcode == "open":
-            print("Inside open() server: ", self.user.username, threading.current_thread().ident)
+            # print("Inside open() server: ", self.user.username, threading.current_thread().ident)
             with block:
                 s = OpenBoardCodec().decode(req)
                 b = get_board_obj(s.name)
                 if b is not None:
                     b.attach(self.user, self.log, self.turncb)
-                    return f"{self.user} is attached to board."
+                    return f"{self.user.username} is attached to board."
                 return f"Board {s.name} is not present."
         elif opcode == "ready":
             with block:
@@ -135,15 +148,13 @@ class AgentBoard:
         elif opcode == "state":
             with block:
                 s = BoardStateCodec().decode(req)
-                print(s)
+                # print(s)
                 b = get_board_obj(s.name)
                 if b is not None:
                     return b.get_board_state()
                 return f"Board {s.name} is not present."
 
     def turncb(self, board: Board, options):
-        if "buy" in options or "upgrade" in options:
-            options.append("not")
         self.options = options
         # Wait for client to request the options and send an answer, when an answer is recieved this will released.
         while self.curr_move is None:
@@ -153,18 +164,22 @@ class AgentBoard:
         move = self.curr_move
         self.curr_move = None
         if move == "teleport" or move == "pick":
-            board.turn(self.user, move, self.curr_args)
+            board.turn(self.user, move, self.cond, self.curr_args)
         elif move == "jail-free":
-            board.turn(self.user, move, "y")
+            board.turn(self.user, move, self.cond, "y")
         elif move == "not":
             return
         else:
-            board.turn(self.user, move)
+            board.turn(self.user, move, self.cond)
 
     def log(self, log):
         # Send log to client
-        print(log)
+        # print("logging: ",log)
         self.logs.append(log)
+        self.cond.acquire()
+        self.cond.notify_all()
+        self.cond.release()
+        # print("releasing condition")
 
 
 class Agent:
@@ -198,24 +213,28 @@ class Agent:
             token, opcode = decode_opcode(req)
             if opcode == "authenticate":
                 s = AuthCodec().decode(req)
-                print(s)
+                # print(s)
                 self.authenticate(s)
             elif opcode == "register":
                 s = RegisterCodec().decode(req)
-                print(s)
+                # print(s)
                 self.register(s)
             elif token == "NO_TOKEN":
                 self.sock.send("Please authenticate using your password.".encode())
             else:
                 # TODO: Call the related AgenBoard here!
-                response = users[token].listen_reqs(req)
-                if response is not None:
-                    self.sock.send(response.encode())
+                try:
+                    response = users[token].listen_reqs(req)
+                    if response is not None:
+                        self.sock.send(response.encode())
+                except Exception as e:
+                    self.sock.send("Wrong token. Please authenticate using your password.".encode())
             req = self.sock.recv(1024)
 
     def log(self, log):
         # Send log to client
         self.sock.send(log.encode())
+
 
 
 class MonopolyServer:
@@ -231,7 +250,7 @@ class MonopolyServer:
             while True:
                 ns, peer = self.sock.accept()
                 Agent(ns, peer)
-                print(f"[{peer}] new client is connected: ")
+                # print(f"[{peer}] new client is connected: ")
         finally:
             self.sock.close()
 
@@ -240,4 +259,6 @@ class MonopolyServer:
         self.sock.bind(('localhost', self.port))
         self.sock.listen(10)
         self.t = Thread(target=self.accept)
+        print("socket server is started.")
         self.t.start()
+

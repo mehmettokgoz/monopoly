@@ -8,18 +8,18 @@
   </head>
 
   <body style="background-image:url('https://images-na.ssl-images-amazon.com/images/S/pv-target-images/aa22f7bd40726af6afd9c54799b3cbe996ade4542b502f08f8d64e832f2e18b1._RI_.jpg');background-repeat: repeat;background-size: 40%;">
-
     <div style="display:flex; width:90%;height:95vh; margin-left:auto;margin-right:auto;flex-direction:column;gap:20px;margin-top:auto;margin-bottom:auto;margin-top:auto;margin-bottom:auto;justify-content:center;">
-
         <div style="font-family:'Verdana'; width:100%; height:auto;display:flex;justify-content:center;stroke-width:3;stroke:rgb(0,0,0);">
             <a href="/"><img style="height:50px;" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Monopoly-Logo.svg" alt="Kiwi standing on oval"></a>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;text-align:center;">
             {{ message }}
             <form method="post" action="/auth" style="display:flex;flex-direction:column;width:20%;margin-left:auto;margin-right:auto;text-align:center;gap:5px;">
-                <p style='margin:0;font-size:20px;font-family: "Gill Sans", sans-serif;'>Username</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="username"/>
-                <p style='margin:0;font-size:20px;font-family: "Gill Sans", sans-serif;'>Password</p><input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="password" name="password"/>
                 {% csrf_token %}
+                <p style='margin:0;font-size:20px;font-family: "Gill Sans", sans-serif;'>Username</p>
+                <input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="text" name="username"/>
+                <p style='margin:0;font-size:20px;font-family: "Gill Sans", sans-serif;'>Password</p>
+                <input style="height:30px;border-radius:10px;border-width:2px;border:solid;" type="password" name="password"/>
                 <input style="height:40px;border-radius:10px;border-width:2px;border:solid;margin-top:20px;" type="submit" name="Login" value="Login"/>
             </form>
           <p style="margin:0;font-size:20px;font-family: 'Gill Sans', sans-serif;margin-top:50px;">Don't you have an account? Register from <a href="register">here.</a></p>

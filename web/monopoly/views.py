@@ -1,20 +1,23 @@
 import datetime
 import json
+import os
 import random
 import socket
 from threading import Condition, Lock, Thread
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.datastructures import MultiValueDictKeyError
 
 from monopoly.client import MonopolyClient
 from monopoly.protocol import NewBoardCodec, StartGameCodec, ListBoardCodec, OpenBoardCodec, \
     CloseBoardCodec, AuthCodec, CommandCodec, ReadyBoardCodec, UnwatchBoardCodec, WatchBoardCodec
 
-port = 1590
+port = 1256
 
 
 def index(request, board_name):
@@ -74,7 +77,7 @@ def index(request, board_name):
 
     for user_index in response["user_positions"].keys():
         response["user_positions"][user_index] = cells[response["user_positions"][user_index]]["text_location"]
-    print(response)
+    #print(response)
     curr_chance_card = None
     if response["curr_chance_card"] != '' or response["curr_chance_card"] != "":
         curr_chance_card = response["curr_chance_card"]
@@ -92,6 +95,7 @@ def index(request, board_name):
         "cells": cells,
         "size": size,
         "base": base,
+        "token": token,
         "game_over": response["game_over"],
         "middle_rect_size": (size - 2) * base,
         "middle_text_loc": base + (size - 2) * base / 2,
@@ -114,13 +118,13 @@ def list_boards(request):
     client = MonopolyClient(port)
     if token is not None:
         response = client.send_command(token, "list")
-        print(response)
+        # print(response)
         client.close()
         response = response.decode().split(",")
         if response[0] == "No board is available.":
             return render(request, "monopoly/list.html",
                           {"username": request.COOKIES.get("username"),
-                           'message': 'No board is available. You can create a new board using form below.',
+                           'message': 'No board is available. You can create a new board.',
                            "boards": []})
         else:
             response_dict = []
@@ -136,14 +140,18 @@ def list_boards(request):
 def execute_command(request, board_name):
     context = {}
     option = request.POST["option"]
-    selected_cell = request.POST["selected_cell"]
+    selected_cell = 0
+    try:
+        selected_cell = request.POST["selected_cell"]
+    except MultiValueDictKeyError as e:
+        selected_cell = 0
     token = request.COOKIES.get('token')
     if token:
         client = MonopolyClient(port)
         # TODO: Send related command by taking from request.
-        print(selected_cell)
+        # print(selected_cell)
         response = client.send_command(token, "command", option, selected_cell)
-        print(response)
+        # print(response)
         client.close()
         # TODO: Redirect connection to board page.
         return HttpResponseRedirect(f'/board/{board_name}')
@@ -186,7 +194,7 @@ def register_post(request):
     full_name = request.POST['full_name']
     password = request.POST['password']
 
-    print(username, email, full_name, password)
+    # print(username, email, full_name, password)
 
     client = MonopolyClient(port)
     response = client.send_command("NO_TOKEN_REQUIRED", "register", username, email, full_name, password)
@@ -205,19 +213,22 @@ def logout(request):
 def new_board(request):
     board_json = request.POST['json_board']
     name = request.POST['name']
+    # print(request.POST)
 
     # TODO: Pull list data here from server
     context = {}
+    if name != '' and board_json != '':
+        token = request.COOKIES.get('token')
+        client = MonopolyClient(port)
+        if token is not None:
+            response = client.send_command(token, "new", name, board_json)
+            client.close()
 
-    token = request.COOKIES.get('token')
-    client = MonopolyClient(port)
-    if token is not None:
-        response = client.send_command(token, "new", name, board_json)
-        client.close()
-
-        return HttpResponseRedirect("/")
+            return HttpResponseRedirect("/")
+        else:
+            return HttpResponseRedirect("/login")
     else:
-        return HttpResponseRedirect("/login")
+        return HttpResponseRedirect("/")
 
 
 def ready(request, board_name):
@@ -270,3 +281,33 @@ def start(request, board_name):
         return HttpResponseRedirect(f"/board/{board_name}")
     else:
         return HttpResponseRedirect("/login")
+
+
+def create_template(request):
+    context = {}
+    context["templates"] = (os.listdir(os.path.abspath("./assets")))
+    new_dict = {}
+    for i in context["templates"]:
+        new_dict[i] = os.path.abspath("./assets") + "/" + i
+    context["templates2"] = new_dict.items()
+    context["username"] = request.COOKIES.get("username")
+    # print(new_dict)
+    return render(request, "monopoly/create-board.html", context)
+
+
+def upload_template(request):
+    context = {}
+    context["username"] = request.COOKIES.get("username")
+    return render(request, "monopoly/upload-board.html", context)
+
+
+def simple_upload(request):
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        fs = FileSystemStorage()
+        filename = fs.save(myfile.name, myfile)
+        uploaded_file_url = fs.url(filename)
+        # print(uploaded_file_url)
+        # print(filename)
+        return HttpResponseRedirect("/")
+    return HttpResponseRedirect("/")
