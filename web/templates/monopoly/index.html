@@ -215,7 +215,9 @@
 
         </div>
 
+
         <script type="text/javascript">
+
             var selected_cell = -1;
 
             function select_cell(clicked_id)
@@ -226,11 +228,6 @@
 
             };
 
-
-
-        </script>
-
-        <script>
             var cell_svg_locations = []
             let size = 8;
             let base = 100;
@@ -245,18 +242,6 @@
             }
             for (let i = size - 2; i > 0; i--) {
                 cell_svg_locations.push({"x": 0, "y": i * base});
-            }
-            
-            console.log(cell_svg_locations)
-
-            function sendenter(e, f) {
-                if (e.keyCode == 13) { f();}
-                return false;
-            }
-            function addMess() {
-                var el = document.getElementById('newmess');
-                ws.socket.send(el.value);
-                el.value = "";
             }
             
             function updateStatistics(response) {
